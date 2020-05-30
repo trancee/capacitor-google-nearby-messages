@@ -106,7 +106,9 @@ var capacitorPlugin = (function (exports) {
          * On iOS it's the app's documents directory.
          * Use this directory to store user-generated content.
          * On Android it's the Public Documents folder, so it's accessible from other apps.
-         * It's not accesible on Android 10 and newer.
+         * It's not accesible on Android 10 unless the app enables legacy External Storage
+         * by adding `android:requestLegacyExternalStorage="true"` in the `application` tag
+         * in the `AndroidManifest.xml`
          */
         FilesystemDirectory["Documents"] = "DOCUMENTS";
         /**
@@ -136,7 +138,9 @@ var capacitorPlugin = (function (exports) {
          * The external storage directory
          * On iOS it will use the Documents directory
          * On Android it's the primary shared/external storage directory.
-         * It's not accesible on Android 10 and newer.
+         * It's not accesible on Android 10 unless the app enables legacy External Storage
+         * by adding `android:requestLegacyExternalStorage="true"` in the `application` tag
+         * in the `AndroidManifest.xml`
          */
         FilesystemDirectory["ExternalStorage"] = "EXTERNAL_STORAGE";
     })(FilesystemDirectory || (FilesystemDirectory = {}));
@@ -239,7 +243,7 @@ var capacitorPlugin = (function (exports) {
             // Gracefully degrade in non-Proxy supporting engines, e.g. IE11. This
             // effectively means that trying to access an unavailable plugin will
             // locally throw, but this is still better than throwing a syntax error.
-            if ('Proxy' in window) {
+            if (typeof Proxy !== 'undefined') {
                 // Build a proxy for the Plugins object that returns the "Noop Plugin"
                 // if a plugin isn't available
                 this.Plugins = new Proxy(this.Plugins, {
@@ -1024,7 +1028,7 @@ var capacitorPlugin = (function (exports) {
          */
         FilesystemPluginWeb.prototype.appendFile = function (options) {
             return __awaiter(this, void 0, void 0, function () {
-                var path, data, parentPath, now, ctime, occupiedEntry, parentEntry, parentArgPath, pathObj;
+                var path, data, parentPath, now, ctime, occupiedEntry, parentEntry, parentArgPathIndex, parentArgPath, pathObj;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -1042,7 +1046,8 @@ var capacitorPlugin = (function (exports) {
                         case 2:
                             parentEntry = _a.sent();
                             if (!(parentEntry === undefined)) return [3 /*break*/, 4];
-                            parentArgPath = parentPath.substr(parentPath.indexOf('/', 1));
+                            parentArgPathIndex = parentPath.indexOf('/', 1);
+                            parentArgPath = parentArgPathIndex !== -1 ? parentPath.substr(parentArgPathIndex) : '/';
                             return [4 /*yield*/, this.mkdir({ path: parentArgPath, directory: options.directory, recursive: true })];
                         case 3:
                             _a.sent();
@@ -2164,6 +2169,18 @@ var capacitorPlugin = (function (exports) {
         unregisterStatusCallback(options) {
             return __awaiter$1(this, void 0, void 0, function* () {
                 console.log("unregisterStatusCallback", options);
+                throw new Error("Method not implemented.");
+            });
+        }
+        pause() {
+            return __awaiter$1(this, void 0, void 0, function* () {
+                console.log("pause");
+                throw new Error("Method not implemented.");
+            });
+        }
+        resume() {
+            return __awaiter$1(this, void 0, void 0, function* () {
+                console.log("resume");
                 throw new Error("Method not implemented.");
             });
         }

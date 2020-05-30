@@ -218,6 +218,9 @@ export interface GoogleNearbyMessagesPlugin {
     // UNUSED // statusCallback: StatusCallback,
   }): Promise<Task>;
 
+  pause(): Promise<void>;
+  resume(): Promise<void>;
+
   status(): Promise<void>;
 
   // Called when permission is granted or revoked for this app to use Nearby.

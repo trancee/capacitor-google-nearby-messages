@@ -14,6 +14,8 @@ export declare class GoogleNearbyMessagesWeb extends WebPlugin implements Google
     unsubscribe(options: {}): Promise<Task>;
     registerStatusCallback(options: {}): Promise<Task>;
     unregisterStatusCallback(options: {}): Promise<Task>;
+    pause(): Promise<void>;
+    resume(): Promise<void>;
     status(): Promise<void>;
 }
 declare const GoogleNearbyMessages: GoogleNearbyMessagesWeb;

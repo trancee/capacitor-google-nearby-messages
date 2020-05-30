@@ -50,6 +50,9 @@ public class GoogleNearbyMessages extends Plugin {
     private MessageListener mMessageListener;
     private Message mActiveMessage;
 
+    private PublishOptions mPublishOptions;
+    private SubscribeOptions mSubscribeOptions;
+
     protected void handleOnNewIntent(Intent intent) {
         // Creates a new instance of MessagesClient.
         mMessagesClient = Nearby.getMessagesClient(getContext(),
@@ -292,11 +295,7 @@ public class GoogleNearbyMessages extends Plugin {
     // https://developers.google.com/nearby/messages/android/pub-sub#publish_a_message
     public void publish(PluginCall call) {
         if (mActiveMessage != null) {
-            // Cancels an existing published message.
-            mMessagesClient.unpublish(
-                    // A Message that is currently published
-                    mActiveMessage
-            );
+            doUnpublish();
 
             mActiveMessage = null;
         }
@@ -401,15 +400,24 @@ public class GoogleNearbyMessages extends Plugin {
                 options.setStrategy(strategy);
             }
 
+            mPublishOptions = options.build();
             mActiveMessage = message;
 
+            doPublish(call);
+        } catch (Exception e) {
+            call.error(e.getLocalizedMessage(), e);
+        }
+    }
+
+    private void doPublish(PluginCall call) {
+        if (mMessagesClient != null) {
             // Publishes a message so that it is visible to nearby devices.
             mMessagesClient
                     .publish(
                             // A Message to publish for nearby devices to see
                             mActiveMessage,
                             // A PublishOptions object for this operation
-                            options.build()
+                            mPublishOptions
                     )
                     .addOnSuccessListener(
                             (Void) -> {
@@ -427,9 +435,6 @@ public class GoogleNearbyMessages extends Plugin {
 
                                 call.error(e.getLocalizedMessage(), e);
                             });
-
-        } catch (Exception e) {
-            call.error(e.getLocalizedMessage(), e);
         }
     }
 
@@ -440,20 +445,27 @@ public class GoogleNearbyMessages extends Plugin {
             //Log.i(getLogTag(), "Unpublishing.");
 
             if (mActiveMessage != null) {
-                // Cancels an existing published message.
-                mMessagesClient.unpublish(
-                        // A Message that is currently published
-                        mActiveMessage
-                );
+                doUnpublish();
 
                 mActiveMessage = null;
+                mPublishOptions = null;
             }
 
             isPublishing = false;
 
-            call.resolve();
+            call.success();
         } catch (Exception e) {
-            call.reject(e.getLocalizedMessage(), e);
+            call.error(e.getLocalizedMessage(), e);
+        }
+    }
+
+    private void doUnpublish() {
+        if (mMessagesClient != null) {
+            // Cancels an existing published message.
+            mMessagesClient.unpublish(
+                    // A Message that is currently published
+                    mActiveMessage
+            );
         }
     }
 
@@ -627,13 +639,23 @@ public class GoogleNearbyMessages extends Plugin {
                 options.setFilter(filter);
             }
 
+            mSubscribeOptions = options.build();
+
+            doSubscribe(call);
+        } catch (Exception e) {
+            call.error(e.getLocalizedMessage(), e);
+        }
+    }
+
+    private void doSubscribe(PluginCall call) {
+        if (mMessagesClient != null) {
             // Subscribes for published messages from nearby devices.
             mMessagesClient
                     .subscribe(
                             // A MessageListener implementation to get callbacks of received messages
                             mMessageListener,
                             // A SubscribeOptions object for this operation
-                            options.build()
+                            mSubscribeOptions
                     )
                     .addOnSuccessListener(
                             (Void) -> {
@@ -651,9 +673,6 @@ public class GoogleNearbyMessages extends Plugin {
 
                                 call.error(e.getLocalizedMessage(), e);
                             });
-
-        } catch (Exception e) {
-            call.error(e.getLocalizedMessage(), e);
         }
     }
 
@@ -664,14 +683,58 @@ public class GoogleNearbyMessages extends Plugin {
             //Log.i(getLogTag(), "Unsubscribing.");
 
             if (isSubscribing && mMessagesClient != null) {
-                // Cancels an existing subscription.
-                mMessagesClient.unsubscribe(
-                        // A MessageListener implementation that is currently subscribed
-                        mMessageListener
-                );
+                doUnsubscribe();
+
+                mSubscribeOptions = null;
             }
 
             isSubscribing = false;
+
+            call.success();
+        } catch (Exception e) {
+            call.error(e.getLocalizedMessage(), e);
+        }
+    }
+
+    private void doUnsubscribe() {
+        if (mMessagesClient != null) {
+            // Cancels an existing subscription.
+            mMessagesClient.unsubscribe(
+                    // A MessageListener implementation that is currently subscribed
+                    mMessageListener
+            );
+        }
+    }
+
+    @PluginMethod()
+    public void pause(PluginCall call) {
+        try {
+            //Log.i(getLogTag(), "Pausing.");
+
+            if (isPublishing) {
+                doUnpublish();
+            }
+            if (isSubscribing) {
+                doUnsubscribe();
+            }
+
+            call.success();
+        } catch (Exception e) {
+            call.error(e.getLocalizedMessage(), e);
+        }
+    }
+
+    @PluginMethod()
+    public void resume(PluginCall call) {
+        try {
+            //Log.i(getLogTag(), "Resuming.");
+
+            if (isPublishing) {
+                doPublish(call);
+            }
+            if (isSubscribing) {
+                doSubscribe(call);
+            }
 
             call.success();
         } catch (Exception e) {

@@ -1,6 +1,6 @@
 {
   "name": "capacitor-google-nearby-messages",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Plugin to leverage the Google Nearby Messages API for communication with nearby devices.",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -13,14 +13,14 @@
   "author": "Philipp Grosswiler",
   "license": "MIT",
   "dependencies": {
-    "@capacitor/core": "latest",
-    "rollup-plugin-node-resolve": "^5.2.0"
+    "@capacitor/core": "^2.1.2",
+    "@rollup/plugin-node-resolve": "^8.0.0"
   },
   "devDependencies": {
+    "@capacitor/android": "^2.1.2",
+    "@capacitor/ios": "^2.1.2",
     "rimraf": "^3.0.0",
-    "typescript": "^3.2.4",
-    "@capacitor/ios": "latest",
-    "@capacitor/android": "latest"
+    "typescript": "^3.2.4"
   },
   "files": [
     "dist/",

@@ -57,6 +57,18 @@ export class GoogleNearbyMessagesWeb extends WebPlugin {
             throw new Error("Method not implemented.");
         });
     }
+    pause() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("pause");
+            throw new Error("Method not implemented.");
+        });
+    }
+    resume() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("resume");
+            throw new Error("Method not implemented.");
+        });
+    }
     status() {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("status");

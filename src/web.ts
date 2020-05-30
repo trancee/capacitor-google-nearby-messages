@@ -76,6 +76,15 @@ export class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMe
     throw new Error("Method not implemented.");
   }
 
+  async pause(): Promise<void> {
+    console.log("pause");
+    throw new Error("Method not implemented.");
+  }
+  async resume(): Promise<void> {
+    console.log("resume");
+    throw new Error("Method not implemented.");
+  }
+
   async status(): Promise<void> {
     console.log("status");
     throw new Error("Method not implemented.");
