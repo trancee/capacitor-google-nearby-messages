@@ -3,9 +3,9 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 export default {
   input: 'dist/esm/index.js',
   output: {
-    file: 'dist/capacitor-google-nearby-messages.js',
+    file: 'dist/plugin.js',
     format: 'iife',
-    name: 'capacitorPlugin',
+    name: 'googleNearbyMessagesExports',
     sourcemap: true
   },
   plugins: [
