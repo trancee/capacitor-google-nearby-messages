@@ -9,6 +9,16 @@
 /* Begin PBXBuildFile section */
 		03FC29A292ACC40490383A1F /* Pods_Plugin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B2A61DA5A1F2DD4F959604D /* Pods_Plugin.framework */; };
 		20C0B05DCFC8E3958A738AF2 /* Pods_PluginTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6753A823D3815DB436415E3 /* Pods_PluginTests.framework */; };
+		4AA67824248BDE3200E9CFA6 /* GNSBeaconStrategy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA6780D248BDD5300E9CFA6 /* GNSBeaconStrategy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AA67825248BDE3200E9CFA6 /* GNSError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA6780C248BDD5300E9CFA6 /* GNSError.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AA67826248BDE3200E9CFA6 /* GNSMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA6780F248BDD5300E9CFA6 /* GNSMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AA67827248BDE3200E9CFA6 /* GNSMessageManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA67810248BDD5300E9CFA6 /* GNSMessageManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AA67828248BDE3200E9CFA6 /* GNSMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA6780E248BDD5300E9CFA6 /* GNSMessages.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AA67829248BDE3200E9CFA6 /* GNSOperationStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA67811248BDD5300E9CFA6 /* GNSOperationStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AA6782A248BDE3200E9CFA6 /* GNSPermission.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA67813248BDD5300E9CFA6 /* GNSPermission.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AA6782B248BDE3200E9CFA6 /* GNSPublicationParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA6780A248BDD5300E9CFA6 /* GNSPublicationParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AA6782C248BDE3200E9CFA6 /* GNSStrategy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA6780B248BDD5300E9CFA6 /* GNSStrategy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AA6782D248BDE3200E9CFA6 /* GNSSubscriptionParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA67812248BDD5300E9CFA6 /* GNSSubscriptionParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		50ADFF92201F53D600D50D53 /* Plugin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50ADFF88201F53D600D50D53 /* Plugin.framework */; };
 		50ADFF97201F53D600D50D53 /* PluginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50ADFF96201F53D600D50D53 /* PluginTests.swift */; };
 		50ADFF99201F53D600D50D53 /* Plugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 50ADFF8B201F53D600D50D53 /* Plugin.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -29,6 +39,16 @@
 
 /* Begin PBXFileReference section */
 		3B2A61DA5A1F2DD4F959604D /* Pods_Plugin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Plugin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4AA6780A248BDD5300E9CFA6 /* GNSPublicationParams.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSPublicationParams.h; path = Pods/NearbyMessages/Sources/GNSPublicationParams.h; sourceTree = "<group>"; };
+		4AA6780B248BDD5300E9CFA6 /* GNSStrategy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSStrategy.h; path = Pods/NearbyMessages/Sources/GNSStrategy.h; sourceTree = "<group>"; };
+		4AA6780C248BDD5300E9CFA6 /* GNSError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSError.h; path = Pods/NearbyMessages/Sources/GNSError.h; sourceTree = "<group>"; };
+		4AA6780D248BDD5300E9CFA6 /* GNSBeaconStrategy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSBeaconStrategy.h; path = Pods/NearbyMessages/Sources/GNSBeaconStrategy.h; sourceTree = "<group>"; };
+		4AA6780E248BDD5300E9CFA6 /* GNSMessages.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSMessages.h; path = Pods/NearbyMessages/Sources/GNSMessages.h; sourceTree = "<group>"; };
+		4AA6780F248BDD5300E9CFA6 /* GNSMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSMessage.h; path = Pods/NearbyMessages/Sources/GNSMessage.h; sourceTree = "<group>"; };
+		4AA67810248BDD5300E9CFA6 /* GNSMessageManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSMessageManager.h; path = Pods/NearbyMessages/Sources/GNSMessageManager.h; sourceTree = "<group>"; };
+		4AA67811248BDD5300E9CFA6 /* GNSOperationStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSOperationStatus.h; path = Pods/NearbyMessages/Sources/GNSOperationStatus.h; sourceTree = "<group>"; };
+		4AA67812248BDD5300E9CFA6 /* GNSSubscriptionParams.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSSubscriptionParams.h; path = Pods/NearbyMessages/Sources/GNSSubscriptionParams.h; sourceTree = "<group>"; };
+		4AA67813248BDD5300E9CFA6 /* GNSPermission.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSPermission.h; path = Pods/NearbyMessages/Sources/GNSPermission.h; sourceTree = "<group>"; };
 		50ADFF88201F53D600D50D53 /* Plugin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Plugin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		50ADFF8B201F53D600D50D53 /* Plugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Plugin.h; sourceTree = "<group>"; };
 		50ADFF8C201F53D600D50D53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -70,6 +90,16 @@
 		50ADFF7E201F53D600D50D53 = {
 			isa = PBXGroup;
 			children = (
+				4AA6780D248BDD5300E9CFA6 /* GNSBeaconStrategy.h */,
+				4AA6780C248BDD5300E9CFA6 /* GNSError.h */,
+				4AA6780F248BDD5300E9CFA6 /* GNSMessage.h */,
+				4AA67810248BDD5300E9CFA6 /* GNSMessageManager.h */,
+				4AA6780E248BDD5300E9CFA6 /* GNSMessages.h */,
+				4AA67811248BDD5300E9CFA6 /* GNSOperationStatus.h */,
+				4AA67813248BDD5300E9CFA6 /* GNSPermission.h */,
+				4AA6780A248BDD5300E9CFA6 /* GNSPublicationParams.h */,
+				4AA6780B248BDD5300E9CFA6 /* GNSStrategy.h */,
+				4AA67812248BDD5300E9CFA6 /* GNSSubscriptionParams.h */,
 				50ADFF8A201F53D600D50D53 /* Plugin */,
 				50ADFF95201F53D600D50D53 /* PluginTests */,
 				50ADFF89201F53D600D50D53 /* Products */,
@@ -136,6 +166,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				50ADFF99201F53D600D50D53 /* Plugin.h in Headers */,
+				4AA67824248BDE3200E9CFA6 /* GNSBeaconStrategy.h in Headers */,
+				4AA67825248BDE3200E9CFA6 /* GNSError.h in Headers */,
+				4AA67826248BDE3200E9CFA6 /* GNSMessage.h in Headers */,
+				4AA67827248BDE3200E9CFA6 /* GNSMessageManager.h in Headers */,
+				4AA67828248BDE3200E9CFA6 /* GNSMessages.h in Headers */,
+				4AA67829248BDE3200E9CFA6 /* GNSOperationStatus.h in Headers */,
+				4AA6782A248BDE3200E9CFA6 /* GNSPermission.h in Headers */,
+				4AA6782B248BDE3200E9CFA6 /* GNSPublicationParams.h in Headers */,
+				4AA6782C248BDE3200E9CFA6 /* GNSStrategy.h in Headers */,
+				4AA6782D248BDE3200E9CFA6 /* GNSSubscriptionParams.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -151,6 +191,7 @@
 				50ADFF84201F53D600D50D53 /* Frameworks */,
 				50ADFF85201F53D600D50D53 /* Headers */,
 				50ADFF86201F53D600D50D53 /* Resources */,
+				A6631E0984239AC7AFBA2B54 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -170,6 +211,7 @@
 				50ADFF8E201F53D600D50D53 /* Frameworks */,
 				50ADFF8F201F53D600D50D53 /* Resources */,
 				CCA81D3B7E26D0D727D24C84 /* [CP] Embed Pods Frameworks */,
+				C0C50B1AF397530A1A257A49 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -188,7 +230,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0920;
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 1150;
 				ORGANIZATIONNAME = "Max Lynch";
 				TargetAttributes = {
 					50ADFF87201F53D600D50D53 = {
@@ -209,6 +251,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 50ADFF7E201F53D600D50D53;
 			productRefGroup = 50ADFF89201F53D600D50D53 /* Products */;
@@ -257,6 +300,27 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		A6631E0984239AC7AFBA2B54 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Plugin/Pods-Plugin-resources.sh",
+				"${PODS_ROOT}/NearbyMessages/Resources/resources/GNSSharedResources.bundle",
+				"${PODS_ROOT}/NearbyMessages/Resources/resources/ic_expand_more.xcassets",
+				"${PODS_ROOT}/NearbyMessages/Resources/resources/ic_nearby_48pt.xcassets",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GNSSharedResources.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Assets.car",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Plugin/Pods-Plugin-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		AB5B3E54B4E897F32C2279DA /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -273,6 +337,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C0C50B1AF397530A1A257A49 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PluginTests/Pods-PluginTests-resources.sh",
+				"${PODS_ROOT}/NearbyMessages/Resources/resources/GNSSharedResources.bundle",
+				"${PODS_ROOT}/NearbyMessages/Resources/resources/ic_expand_more.xcassets",
+				"${PODS_ROOT}/NearbyMessages/Resources/resources/ic_nearby_48pt.xcassets",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GNSSharedResources.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Assets.car",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PluginTests/Pods-PluginTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		CCA81D3B7E26D0D727D24C84 /* [CP] Embed Pods Frameworks */ = {
@@ -330,6 +415,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLY_RULES_IN_COPY_HEADERS = NO;
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -340,6 +427,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -347,6 +435,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -390,6 +479,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLY_RULES_IN_COPY_HEADERS = NO;
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -400,6 +491,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -407,6 +499,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -443,6 +536,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5E23F77F099397094342571A /* Pods-Plugin.debug.xcconfig */;
 			buildSettings = {
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
@@ -454,6 +548,10 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks $(FRAMEWORK_SEARCH_PATHS)\n$(FRAMEWORK_SEARCH_PATHS)\n$(FRAMEWORK_SEARCH_PATHS)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Pods/NearbyMessages/Libraries",
+				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.getcapacitor.Plugin;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -468,6 +566,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 91781294A431A2A7CC6EB714 /* Pods-Plugin.release.xcconfig */;
 			buildSettings = {
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
@@ -479,6 +578,10 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks $(FRAMEWORK_SEARCH_PATHS)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Pods/NearbyMessages/Libraries",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.getcapacitor.Plugin;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";

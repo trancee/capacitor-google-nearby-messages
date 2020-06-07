@@ -1,19 +1,18 @@
 import { WebPlugin } from '@capacitor/core';
 import { GoogleNearbyMessagesPlugin } from './definitions';
-import { Message, PublishOptions, SubscribeOptions, Task } from './definitions';
+import { Message, PublishOptions, SubscribeOptions } from './definitions';
 export declare class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMessagesPlugin {
     constructor();
+    initialize(): Promise<void>;
     publish(options: {
         message: Message;
         options?: PublishOptions;
-    }): Promise<Task>;
-    unpublish(options: {}): Promise<Task>;
+    }): Promise<void>;
+    unpublish(options: {}): Promise<void>;
     subscribe(options: {
         options?: SubscribeOptions;
-    }): Promise<Task>;
-    unsubscribe(options: {}): Promise<Task>;
-    registerStatusCallback(options: {}): Promise<Task>;
-    unregisterStatusCallback(options: {}): Promise<Task>;
+    }): Promise<void>;
+    unsubscribe(options: {}): Promise<void>;
     pause(): Promise<void>;
     resume(): Promise<void>;
     status(): Promise<void>;

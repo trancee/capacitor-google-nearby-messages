@@ -6,15 +6,6 @@ declare module "@capacitor/core" {
   }
 }
 
-// Represents an asynchronous operation.
-// https://developers.google.com/android/reference/com/google/android/gms/tasks/Task
-export interface Task {
-  // Called when the Task completes successfully.
-  onSuccess: any;
-  // Called when the Task fails with an exception.
-  onFailure: any;
-}
-
 // A message that will be shared with nearby devices.
 // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/Message
 export interface Message {
@@ -42,12 +33,14 @@ export interface Strategy {
   ttlSeconds?: TTLSeconds | number;
 }
 
+/*
 // Callback for events which affect published messages.
 // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/PublishCallback
 export interface PublishCallback {
   // The published message is expired.
   onExpired: () => void;
 }
+*/
 
 // Options for calls to publish(GoogleApiClient, Message).
 // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/PublishOptions
@@ -151,12 +144,14 @@ export interface MessageFilter {
   // UNUSED // includeFilter?: MessageFilter;
 }
 
+/*
 // Callback for events which affect subscriptions.
 // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/SubscribeCallback
 export interface SubscribeCallback {
   // The subscription is expired.
   onExpired: () => void;
 }
+*/
 
 // Options for calls to subscribe(GoogleApiClient, PendingIntent).
 // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/SubscribeOptions
@@ -169,28 +164,33 @@ export interface SubscribeOptions {
   // UNUSED // callback?: SubscribeCallback;
 }
 
+/*
 // Callbacks for global status changes that affect a client of Nearby Messages.
 // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/StatusCallback
 export interface StatusCallback {
   // Called when permission is granted or revoked for this app to use Nearby.
   onPermissionChanged: (permissionGranted: boolean) => void;
 }
+*/
 
 // API which allows your app to publish simple messages and subscribe to receive those messages from nearby devices.
 export interface GoogleNearbyMessagesPlugin {
+  // Initializes the Nearby Messages API.
+  initialize(): Promise<void>;
+
   // Publishes a message so that it is visible to nearby devices, using the default options from DEFAULT.
   publish(options: {
     // A Message to publish for nearby devices to see
     message: Message,
     // A PublishOptions object for this operation
     options?: PublishOptions,
-  }): Promise<Task>;
+  }): Promise<void>;
 
   // Cancels an existing published message.
   unpublish(options: {
     // A Message that is currently published
     // UNUSED // message: Message,
-  }): Promise<Task>;
+  }): Promise<void>;
 
   // Subscribes for published messages from nearby devices, using the default options in DEFAULT.
   subscribe(options: {
@@ -198,25 +198,27 @@ export interface GoogleNearbyMessagesPlugin {
     // UNUSED // listener: MessageListener,
     // A SubscribeOptions object for this operation
     options?: SubscribeOptions,
-  }): Promise<Task>;
+  }): Promise<void>;
 
   // Cancels an existing subscription.
   unsubscribe(options: {
     // A MessageListener implementation that is currently subscribed
     // UNUSED // listener: MessageListener,
-  }): Promise<Task>;
+  }): Promise<void>;
 
+  /*
   // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
   registerStatusCallback(options: {
     // A callback to notify when events occur
     // UNUSED // statusCallback: StatusCallback,
-  }): Promise<Task>;
+  }): Promise<void>;
 
   // Unregisters a status callback previously registered with registerStatusCallback(StatusCallback).
   unregisterStatusCallback(options: {
     // A callback previously registered with registerStatusCallback(StatusCallback)
     // UNUSED // statusCallback: StatusCallback,
-  }): Promise<Task>;
+  }): Promise<void>;
+  */
 
   pause(): Promise<void>;
   resume(): Promise<void>;

@@ -4,10 +4,6 @@ declare module "@capacitor/core" {
         GoogleNearbyMessages: GoogleNearbyMessagesPlugin;
     }
 }
-export interface Task {
-    onSuccess: any;
-    onFailure: any;
-}
 export interface Message {
     content: string;
     type: string;
@@ -19,9 +15,6 @@ export interface Strategy {
     discoveryMode?: DiscoveryMode;
     distanceType?: DistanceType;
     ttlSeconds?: TTLSeconds | number;
-}
-export interface PublishCallback {
-    onExpired: () => void;
 }
 export interface PublishOptions {
     strategy?: Strategy;
@@ -68,28 +61,21 @@ export interface MessageFilter {
     includeIBeaconIds?: includeIBeaconIds;
     includeNamespacedType?: includeNamespacedType;
 }
-export interface SubscribeCallback {
-    onExpired: () => void;
-}
 export interface SubscribeOptions {
     strategy?: Strategy;
     filter: MessageFilter;
 }
-export interface StatusCallback {
-    onPermissionChanged: (permissionGranted: boolean) => void;
-}
 export interface GoogleNearbyMessagesPlugin {
+    initialize(): Promise<void>;
     publish(options: {
         message: Message;
         options?: PublishOptions;
-    }): Promise<Task>;
-    unpublish(options: {}): Promise<Task>;
+    }): Promise<void>;
+    unpublish(options: {}): Promise<void>;
     subscribe(options: {
         options?: SubscribeOptions;
-    }): Promise<Task>;
-    unsubscribe(options: {}): Promise<Task>;
-    registerStatusCallback(options: {}): Promise<Task>;
-    unregisterStatusCallback(options: {}): Promise<Task>;
+    }): Promise<void>;
+    unsubscribe(options: {}): Promise<void>;
     pause(): Promise<void>;
     resume(): Promise<void>;
     status(): Promise<void>;

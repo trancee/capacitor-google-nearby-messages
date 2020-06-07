@@ -15,6 +15,12 @@ export class GoogleNearbyMessagesWeb extends WebPlugin {
             platforms: ['web']
         });
     }
+    initialize() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("initialize");
+            throw new Error("Method not implemented.");
+        });
+    }
     // Publishes a message so that it is visible to nearby devices, using the default options from DEFAULT.
     publish(options) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -43,20 +49,25 @@ export class GoogleNearbyMessagesWeb extends WebPlugin {
             throw new Error("Method not implemented.");
         });
     }
+    /*
     // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
-    registerStatusCallback(options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log("registerStatusCallback", options);
-            throw new Error("Method not implemented.");
-        });
+    async registerStatusCallback(options: {
+      // A callback to notify when events occur
+      // UNUSED // statusCallback: StatusCallback,
+    }): Promise<void> {
+      console.log("registerStatusCallback", options);
+      throw new Error("Method not implemented.");
     }
+  
     // Unregisters a status callback previously registered with registerStatusCallback(StatusCallback).
-    unregisterStatusCallback(options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log("unregisterStatusCallback", options);
-            throw new Error("Method not implemented.");
-        });
+    async unregisterStatusCallback(options: {
+      // A callback previously registered with registerStatusCallback(StatusCallback)
+      // UNUSED // statusCallback: StatusCallback,
+    }): Promise<void> {
+      console.log("unregisterStatusCallback", options);
+      throw new Error("Method not implemented.");
     }
+    */
     pause() {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("pause");
