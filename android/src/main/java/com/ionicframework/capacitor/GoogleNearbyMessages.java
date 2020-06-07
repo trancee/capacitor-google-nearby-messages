@@ -62,7 +62,7 @@ public class GoogleNearbyMessages extends Plugin {
 
                 mActiveMessage = null;
                 mPublishOptions = null;
-    
+
                 isPublishing = false;
             }
 
@@ -298,6 +298,11 @@ public class GoogleNearbyMessages extends Plugin {
     @PluginMethod()
     // https://developers.google.com/nearby/messages/android/pub-sub#publish_a_message
     public void publish(PluginCall call) {
+        if (mMessagesClient == null) {
+            call.reject("Nearby Messages not ready.");
+            return;
+        }
+
         if (mActiveMessage != null) {
             doUnpublish();
 
@@ -476,6 +481,11 @@ public class GoogleNearbyMessages extends Plugin {
     @PluginMethod()
     // https://developers.google.com/nearby/messages/android/pub-sub#subscribe_to_messages
     public void subscribe(PluginCall call) {
+        if (mMessagesClient == null) {
+            call.reject("Nearby Messages not ready.");
+            return;
+        }
+
         try {
             //Log.i(getLogTag(), "Subscribing.");
 

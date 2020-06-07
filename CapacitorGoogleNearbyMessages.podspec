@@ -1,7 +1,7 @@
 
   Pod::Spec.new do |s|
     s.name = 'CapacitorGoogleNearbyMessages'
-    s.version = '1.1.0'
+    s.version = '1.1.1'
     s.summary = 'Plugin to leverage the Google Nearby Messages API for communication with nearby devices.'
     s.license = 'MIT'
     s.homepage = 'https://github.com/trancee/capacitor-google-nearby-messages.git'
