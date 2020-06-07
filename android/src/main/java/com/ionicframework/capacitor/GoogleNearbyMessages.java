@@ -1,8 +1,6 @@
 package com.ionicframework.capacitor;
 
 import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -291,7 +289,7 @@ public class GoogleNearbyMessages extends Plugin {
                         notifyListeners("onLost", data);
                     }
                 }
-            }
+            };
         } catch (Exception e) {
             call.error(e.getLocalizedMessage(), e);
         }
