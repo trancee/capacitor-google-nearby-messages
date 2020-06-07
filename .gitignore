@@ -62,5 +62,6 @@ captures/
 .classpath
 .project
 .settings/
+.vscode/
 
 Podfile.lock

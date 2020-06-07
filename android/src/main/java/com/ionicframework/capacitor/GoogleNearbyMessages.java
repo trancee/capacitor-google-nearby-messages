@@ -299,7 +299,7 @@ public class GoogleNearbyMessages extends Plugin {
     // https://developers.google.com/nearby/messages/android/pub-sub#publish_a_message
     public void publish(PluginCall call) {
         if (mMessagesClient == null) {
-            call.reject("Nearby Messages not ready.");
+            call.reject("Nearby Messages not ready");
             return;
         }
 
@@ -320,7 +320,16 @@ public class GoogleNearbyMessages extends Plugin {
             JSObject messageObject = call.getObject("message", null);
             if (messageObject != null) {
                 String content = messageObject.getString("content");
+                if (content != null) {
+                    call.reject("Must provide message with content");
+                    return;    
+                }
+
                 String type = messageObject.getString("type");
+                if (type != null) {
+                    call.reject("Must provide message with type");
+                    return;    
+                }
 
                 // A message that will be shared with nearby devices.
                 message = new Message(
@@ -329,6 +338,9 @@ public class GoogleNearbyMessages extends Plugin {
                         // A string that describe what the bytes of the content represent. The maximum type length is MAX_TYPE_LENGTH.
                         type
                 );
+            } else {
+                call.reject("Must provide message");
+                return;    
             }
 
             JSObject optionsObject = call.getObject("options", null);
@@ -343,22 +355,23 @@ public class GoogleNearbyMessages extends Plugin {
                         // Use only Bluetooth Low Energy to discover nearby devices. Recommended if you are only interested in messages attached to BLE beacons.
                         strategy = Strategy.BLE_ONLY;
                     } else {
-                        Integer discoveryMode = strategyObject.getInteger("discoveryMode");
-                        Integer distanceType = strategyObject.getInteger("distanceType");
-                        Integer ttlSeconds = strategyObject.getInteger("ttlSeconds");
-
                         // Builder for Strategy.
                         // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/Strategy.Builder
                         Strategy.Builder builder = new Strategy.Builder();
 
+                        Integer discoveryMode = strategyObject.getInteger("discoveryMode");
                         if (discoveryMode != null) {
                             // Sets the desired discovery mode that determines how devices will detect each other.
                             builder.setDiscoveryMode(discoveryMode);
                         }
+
+                        Integer distanceType = strategyObject.getInteger("distanceType");
                         if (distanceType != null) {
                             // Message will only be delivered to subscribing devices that are at most the specified distance from this device.
                             builder.setDistanceType(distanceType);
                         }
+
+                        Integer ttlSeconds = strategyObject.getInteger("ttlSeconds");
                         if (ttlSeconds != null) {
                             // Sets the time to live in seconds for the publish or subscribe.
                             builder.setTtlSeconds(ttlSeconds);
@@ -482,7 +495,7 @@ public class GoogleNearbyMessages extends Plugin {
     // https://developers.google.com/nearby/messages/android/pub-sub#subscribe_to_messages
     public void subscribe(PluginCall call) {
         if (mMessagesClient == null) {
-            call.reject("Nearby Messages not ready.");
+            call.reject("Nearby Messages not ready");
             return;
         }
 
@@ -504,22 +517,23 @@ public class GoogleNearbyMessages extends Plugin {
                         // Use only Bluetooth Low Energy to discover nearby devices. Recommended if you are only interested in messages attached to BLE beacons.
                         strategy = Strategy.BLE_ONLY;
                     } else {
-                        Integer discoveryMode = strategyObject.getInteger("discoveryMode");
-                        Integer distanceType = strategyObject.getInteger("distanceType");
-                        Integer ttlSeconds = strategyObject.getInteger("ttlSeconds");
-
                         // Builder for Strategy.
                         // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/Strategy.Builder
                         Strategy.Builder builder = new Strategy.Builder();
 
+                        Integer discoveryMode = strategyObject.getInteger("discoveryMode");
                         if (discoveryMode != null) {
                             // Sets the desired discovery mode that determines how devices will detect each other.
                             builder.setDiscoveryMode(discoveryMode);
                         }
+
+                        Integer distanceType = strategyObject.getInteger("distanceType");
                         if (distanceType != null) {
                             // Message will only be delivered to subscribing devices that are at most the specified distance from this device.
                             builder.setDistanceType(distanceType);
                         }
+
+                        Integer ttlSeconds = strategyObject.getInteger("ttlSeconds");
                         if (ttlSeconds != null) {
                             // Sets the time to live in seconds for the publish or subscribe.
                             builder.setTtlSeconds(ttlSeconds);
