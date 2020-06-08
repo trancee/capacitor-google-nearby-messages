@@ -18,7 +18,10 @@ public class GoogleNearbyMessages: CAPPlugin {
     var subscription: GNSSubscription?
     
     @objc func initialize(_ call: CAPPluginCall) {
-        let apiKey = call.getString("apiKey") ?? ""
+        guard let apiKey = call.getString("apiKey") else {
+            call.reject("Most provide apiKey")
+            return
+        }
         
         publication = nil
         subscription = nil
@@ -199,13 +202,15 @@ public class GoogleNearbyMessages: CAPPlugin {
             */
         }
         
-        // Publishes a message with additional parameters.
-        publication = messageManager.publication(
-            // The message to publish
-            with: message,
-            // Use this block to pass additional parameters
-            paramsBlock: paramsBlock
-        )
+        DispatchQueue.main.async {
+            // Publishes a message with additional parameters.
+            self.publication = messageManager.publication(
+                // The message to publish
+                with: message,
+                // Use this block to pass additional parameters
+                paramsBlock: paramsBlock
+            )
+        }
     }
     
     @objc func unpublish(_ call: CAPPluginCall) {
@@ -367,39 +372,41 @@ public class GoogleNearbyMessages: CAPPlugin {
             */
         }
         
-        // Subscribes to all messages published by your app.
-        subscription = messageManager.subscription(
-            // Block that's called when a new message is discovered
-            messageFoundHandler: {
-                // A message is a published object that is delivered between nearby devices.
-                (message: GNSMessage?) -> Void in
-                guard let message = message else { return }
-                
-                self.notifyListeners("onFound", data: [
-                    "message": [
-                        "type": message.type,
-                        "content": String(data: message.content, encoding:.utf8) ?? "",
-                        "namespace": message.messageNamespace,
-                    ]
-                ])
-        },
-            // Block that's called when a previously discovered message is lost
-            messageLostHandler: {
-                // A message is a published object that is delivered between nearby devices.
-                (message: GNSMessage?) -> Void in
-                guard let message = message else { return }
-                
-                self.notifyListeners("onLost", data: [
-                    "message": [
-                        "type": message.type,
-                        "content": String(data: message.content, encoding:.utf8) ?? "",
-                        "namespace": message.messageNamespace,
-                    ]
-                ])
-        },
-            // Use this block to pass additional parameters
-            paramsBlock: paramsBlock
-        )
+        DispatchQueue.main.async {
+            // Subscribes to all messages published by your app.
+            self.subscription = messageManager.subscription(
+                // Block that's called when a new message is discovered
+                messageFoundHandler: {
+                    // A message is a published object that is delivered between nearby devices.
+                    (message: GNSMessage?) -> Void in
+                    guard let message = message else { return }
+                    
+                    self.notifyListeners("onFound", data: [
+                        "message": [
+                            "type": message.type,
+                            "content": String(data: message.content, encoding:.utf8) ?? "",
+                            "namespace": message.messageNamespace,
+                        ]
+                    ])
+            },
+                // Block that's called when a previously discovered message is lost
+                messageLostHandler: {
+                    // A message is a published object that is delivered between nearby devices.
+                    (message: GNSMessage?) -> Void in
+                    guard let message = message else { return }
+                    
+                    self.notifyListeners("onLost", data: [
+                        "message": [
+                            "type": message.type,
+                            "content": String(data: message.content, encoding:.utf8) ?? "",
+                            "namespace": message.messageNamespace,
+                        ]
+                    ])
+            },
+                // Use this block to pass additional parameters
+                paramsBlock: paramsBlock
+            )
+        }
     }
 
     @objc func unsubscribe(_ call: CAPPluginCall) {
