@@ -34,6 +34,7 @@ public class GoogleNearbyMessages: CAPPlugin {
         messageManager = GNSMessageManager(
             // The API key of the app, required to use the Messages service
             apiKey: apiKey,
+            
             // Use this block to pass additional parameters
             paramsBlock: {
                 // Additional parameters for the message manager.
@@ -71,6 +72,7 @@ public class GoogleNearbyMessages: CAPPlugin {
             // The permission granted handler
             changedHandler: {
                 (granted: Bool) in
+                
                 self.notifyListeners("onPermissionChanged", data: [
                     "permissionGranted": granted
                 ])
@@ -107,7 +109,7 @@ public class GoogleNearbyMessages: CAPPlugin {
             call.reject("Must provide message")
             return
         }
-
+        
         if let optionsObject = call.getObject("options") {
             if let strategyObject = optionsObject["strategy"] as! [String : Any]? {
                 if strategyObject["DEFAULT"] as? Bool == true {
@@ -116,7 +118,7 @@ public class GoogleNearbyMessages: CAPPlugin {
                     // Optional params for a strategy.
                     let paramsBlock = {
                         (params: GNSStrategyParams!) -> Void in
-
+                        
                         // Use Bluetooth Low Energy to discover nearby devices.
                         params.discoveryMediums = .BLE
                         
@@ -157,10 +159,10 @@ public class GoogleNearbyMessages: CAPPlugin {
         let paramsBlock = {
             // Optional parameters for a publication.
             (params: GNSPublicationParams!) -> Void in
-
+            
             // The strategy to use for publishing the message.
             params.strategy = strategy
-
+            
             params.statusHandler = {
                 // Status of an operation (publication or subscription).
                 (operationStatus: GNSOperationStatus!) -> Void in
@@ -177,13 +179,13 @@ public class GoogleNearbyMessages: CAPPlugin {
                     status = "INACTIVE"
                     
                     self.publication = nil
-
+                    
                     self.notifyListeners("onPublishExpired", data: nil)
                 case .none:
                     fallthrough
                 @unknown default:
                     status = "UNKNOWN"
-
+                    
                     call.error("Unknown publish operation status")
                 }
                 
@@ -193,13 +195,13 @@ public class GoogleNearbyMessages: CAPPlugin {
             }
             
             /*
-            params.permissionRequestHandler = {
-                // Block type used for passing the permission state.
-                (permissionHandler: GNSPermissionHandler!) -> Void in
-
-                permissionHandler(true)
-            }
-            */
+             params.permissionRequestHandler = {
+             // Block type used for passing the permission state.
+             (permissionHandler: GNSPermissionHandler!) -> Void in
+             
+             permissionHandler(true)
+             }
+             */
         }
         
         DispatchQueue.main.async {
@@ -207,6 +209,7 @@ public class GoogleNearbyMessages: CAPPlugin {
             self.publication = messageManager.publication(
                 // The message to publish
                 with: message,
+                
                 // Use this block to pass additional parameters
                 paramsBlock: paramsBlock
             )
@@ -215,7 +218,7 @@ public class GoogleNearbyMessages: CAPPlugin {
     
     @objc func unpublish(_ call: CAPPluginCall) {
         publication = nil
-
+        
         call.success()
     }
     
@@ -224,7 +227,7 @@ public class GoogleNearbyMessages: CAPPlugin {
             call.reject("Nearby Messages not ready")
             return
         }
-
+        
         // The strategy to use to detect nearby devices.
         var strategy: GNSStrategy?
         // The strategy to use to scan for beacons.
@@ -234,26 +237,26 @@ public class GoogleNearbyMessages: CAPPlugin {
         var namespace: String?
         // The message type to match.
         var type: String?
-
+        
         if let optionsObject = call.getObject("options") {
             var lowPowerPreferred: Bool?
             var includeIBeacons: Bool?
-
+            
             if let filterObject = optionsObject["filter"] as! [String : Any]? {
                 if let _ = filterObject["includeEddystoneUids"] as! [String : Any]? {
                     lowPowerPreferred = true
                 }
-
+                
                 if let _ = filterObject["includeIBeaconIds"] as! [String : Any]? {
                     includeIBeacons = true
                 }
-
+                
                 if let includeNamespacedType = filterObject["includeNamespacedType"] as! [String : Any]? {
                     namespace = includeNamespacedType["namespace"] as? String
                     type = includeNamespacedType["type"] as? String
                 }
             }
-
+            
             if let strategyObject = optionsObject["strategy"] as! [String : Any]? {
                 if strategyObject["DEFAULT"] as? Bool == true {
                     strategy = GNSStrategy()
@@ -261,7 +264,7 @@ public class GoogleNearbyMessages: CAPPlugin {
                     // Optional params for a strategy.
                     let paramsBlock = {
                         (params: GNSBeaconStrategyParams!) -> Void in
-
+                        
                         if (lowPowerPreferred != nil) {
                             // Low power mode is available when scanning for Eddystone beacons only; it is ignored when iBeacons are included.
                             params.lowPowerPreferred = lowPowerPreferred!
@@ -309,24 +312,24 @@ public class GoogleNearbyMessages: CAPPlugin {
         let paramsBlock = {
             // Optional parameters for a subscription.
             (params: GNSSubscriptionParams!) -> Void in
-
+            
             if (beaconStrategy != nil) {
                 // The types of devices to discover.
                 params.deviceTypesToDiscover = GNSDeviceTypes.bleBeacon
-
+                
                 // The strategy to use for beacon scanning.
                 params.beaconStrategy = beaconStrategy
             } else {
                 // The types of devices to discover.
                 params.deviceTypesToDiscover = GNSDeviceTypes.usingNearby
-
+                
                 // The strategy to use for discovering Nearby devices (non-beacons).
                 params.strategy = strategy
             }
-
+            
             // The message namespace to match.
             params.messageNamespace = namespace
-
+            
             // The message type to match.
             params.type = type
             
@@ -347,13 +350,13 @@ public class GoogleNearbyMessages: CAPPlugin {
                     status = "INACTIVE"
                     
                     self.subscription = nil
-
+                    
                     self.notifyListeners("onSubscribeExpired", data: nil)
                 case .none:
                     fallthrough
                 @unknown default:
                     status = "UNKNOWN"
-
+                    
                     call.error("Unknown publish operation status")
                 }
                 
@@ -363,13 +366,13 @@ public class GoogleNearbyMessages: CAPPlugin {
             }
             
             /*
-            params.permissionRequestHandler = {
-                // Block type used for passing the permission state.
-                (permissionHandler: GNSPermissionHandler!) -> Void in
-
-                permissionHandler(true)
-            }
-            */
+             params.permissionRequestHandler = {
+             // Block type used for passing the permission state.
+             (permissionHandler: GNSPermissionHandler!) -> Void in
+             
+             permissionHandler(true)
+             }
+             */
         }
         
         DispatchQueue.main.async {
@@ -384,7 +387,7 @@ public class GoogleNearbyMessages: CAPPlugin {
                     self.notifyListeners("onFound", data: [
                         "message": [
                             "type": message.type,
-                            "content": String(data: message.content, encoding:.utf8) ?? "",
+                            "content": message.content.base64EncodedString(),
                             "namespace": message.messageNamespace,
                         ]
                     ])
@@ -398,7 +401,7 @@ public class GoogleNearbyMessages: CAPPlugin {
                     self.notifyListeners("onLost", data: [
                         "message": [
                             "type": message.type,
-                            "content": String(data: message.content, encoding:.utf8) ?? "",
+                            "content": message.content.base64EncodedString(),
                             "namespace": message.messageNamespace,
                         ]
                     ])
@@ -408,10 +411,10 @@ public class GoogleNearbyMessages: CAPPlugin {
             )
         }
     }
-
+    
     @objc func unsubscribe(_ call: CAPPluginCall) {
         subscription = nil
-
+        
         call.success()
     }
     
@@ -427,7 +430,7 @@ public class GoogleNearbyMessages: CAPPlugin {
         
         call.success()
     }
-
+    
     @objc func isGranted(_ call: CAPPluginCall) {
         // Whether Nearby permission is currently granted for the app on this device.
         call.success([

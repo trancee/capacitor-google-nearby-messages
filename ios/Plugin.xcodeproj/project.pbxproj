@@ -9,16 +9,16 @@
 /* Begin PBXBuildFile section */
 		03FC29A292ACC40490383A1F /* Pods_Plugin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B2A61DA5A1F2DD4F959604D /* Pods_Plugin.framework */; };
 		20C0B05DCFC8E3958A738AF2 /* Pods_PluginTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6753A823D3815DB436415E3 /* Pods_PluginTests.framework */; };
-		4A8BF041248DEEE500F4FF92 /* GNSMessageManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8BF037248DEEE500F4FF92 /* GNSMessageManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A8BF042248DEEE500F4FF92 /* GNSStrategy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8BF038248DEEE500F4FF92 /* GNSStrategy.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A8BF043248DEEE500F4FF92 /* GNSOperationStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8BF039248DEEE500F4FF92 /* GNSOperationStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A8BF044248DEEE500F4FF92 /* GNSSubscriptionParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8BF03A248DEEE500F4FF92 /* GNSSubscriptionParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A8BF045248DEEE500F4FF92 /* GNSPermission.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8BF03B248DEEE500F4FF92 /* GNSPermission.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A8BF046248DEEE500F4FF92 /* GNSError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8BF03C248DEEE500F4FF92 /* GNSError.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A8BF047248DEEE500F4FF92 /* GNSPublicationParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8BF03D248DEEE500F4FF92 /* GNSPublicationParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A8BF048248DEEE500F4FF92 /* GNSMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8BF03E248DEEE500F4FF92 /* GNSMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A8BF049248DEEE500F4FF92 /* GNSMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8BF03F248DEEE500F4FF92 /* GNSMessages.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A8BF04A248DEEE500F4FF92 /* GNSBeaconStrategy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8BF040248DEEE500F4FF92 /* GNSBeaconStrategy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADE708D248E84D000996F11 /* GNSPermission.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADE7083248E84CF00996F11 /* GNSPermission.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADE708E248E84D000996F11 /* GNSError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADE7084248E84CF00996F11 /* GNSError.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADE708F248E84D000996F11 /* GNSBeaconStrategy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADE7085248E84D000996F11 /* GNSBeaconStrategy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADE7090248E84D000996F11 /* GNSMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADE7086248E84D000996F11 /* GNSMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADE7091248E84D000996F11 /* GNSPublicationParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADE7087248E84D000996F11 /* GNSPublicationParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADE7092248E84D000996F11 /* GNSStrategy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADE7088248E84D000996F11 /* GNSStrategy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADE7093248E84D000996F11 /* GNSOperationStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADE7089248E84D000996F11 /* GNSOperationStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADE7094248E84D000996F11 /* GNSMessageManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADE708A248E84D000996F11 /* GNSMessageManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADE7095248E84D000996F11 /* GNSMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADE708B248E84D000996F11 /* GNSMessages.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADE7096248E84D000996F11 /* GNSSubscriptionParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADE708C248E84D000996F11 /* GNSSubscriptionParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		50ADFF92201F53D600D50D53 /* Plugin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50ADFF88201F53D600D50D53 /* Plugin.framework */; };
 		50ADFF97201F53D600D50D53 /* PluginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50ADFF96201F53D600D50D53 /* PluginTests.swift */; };
 		50ADFF99201F53D600D50D53 /* Plugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 50ADFF8B201F53D600D50D53 /* Plugin.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -39,16 +39,16 @@
 
 /* Begin PBXFileReference section */
 		3B2A61DA5A1F2DD4F959604D /* Pods_Plugin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Plugin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		4A8BF037248DEEE500F4FF92 /* GNSMessageManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSMessageManager.h; path = Pods/NearbyMessages/Sources/GNSMessageManager.h; sourceTree = "<group>"; };
-		4A8BF038248DEEE500F4FF92 /* GNSStrategy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSStrategy.h; path = Pods/NearbyMessages/Sources/GNSStrategy.h; sourceTree = "<group>"; };
-		4A8BF039248DEEE500F4FF92 /* GNSOperationStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSOperationStatus.h; path = Pods/NearbyMessages/Sources/GNSOperationStatus.h; sourceTree = "<group>"; };
-		4A8BF03A248DEEE500F4FF92 /* GNSSubscriptionParams.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSSubscriptionParams.h; path = Pods/NearbyMessages/Sources/GNSSubscriptionParams.h; sourceTree = "<group>"; };
-		4A8BF03B248DEEE500F4FF92 /* GNSPermission.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSPermission.h; path = Pods/NearbyMessages/Sources/GNSPermission.h; sourceTree = "<group>"; };
-		4A8BF03C248DEEE500F4FF92 /* GNSError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSError.h; path = Pods/NearbyMessages/Sources/GNSError.h; sourceTree = "<group>"; };
-		4A8BF03D248DEEE500F4FF92 /* GNSPublicationParams.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSPublicationParams.h; path = Pods/NearbyMessages/Sources/GNSPublicationParams.h; sourceTree = "<group>"; };
-		4A8BF03E248DEEE500F4FF92 /* GNSMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSMessage.h; path = Pods/NearbyMessages/Sources/GNSMessage.h; sourceTree = "<group>"; };
-		4A8BF03F248DEEE500F4FF92 /* GNSMessages.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSMessages.h; path = Pods/NearbyMessages/Sources/GNSMessages.h; sourceTree = "<group>"; };
-		4A8BF040248DEEE500F4FF92 /* GNSBeaconStrategy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GNSBeaconStrategy.h; path = Pods/NearbyMessages/Sources/GNSBeaconStrategy.h; sourceTree = "<group>"; };
+		4ADE7083248E84CF00996F11 /* GNSPermission.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GNSPermission.h; sourceTree = "<group>"; };
+		4ADE7084248E84CF00996F11 /* GNSError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GNSError.h; sourceTree = "<group>"; };
+		4ADE7085248E84D000996F11 /* GNSBeaconStrategy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GNSBeaconStrategy.h; sourceTree = "<group>"; };
+		4ADE7086248E84D000996F11 /* GNSMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GNSMessage.h; sourceTree = "<group>"; };
+		4ADE7087248E84D000996F11 /* GNSPublicationParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GNSPublicationParams.h; sourceTree = "<group>"; };
+		4ADE7088248E84D000996F11 /* GNSStrategy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GNSStrategy.h; sourceTree = "<group>"; };
+		4ADE7089248E84D000996F11 /* GNSOperationStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GNSOperationStatus.h; sourceTree = "<group>"; };
+		4ADE708A248E84D000996F11 /* GNSMessageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GNSMessageManager.h; sourceTree = "<group>"; };
+		4ADE708B248E84D000996F11 /* GNSMessages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GNSMessages.h; sourceTree = "<group>"; };
+		4ADE708C248E84D000996F11 /* GNSSubscriptionParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GNSSubscriptionParams.h; sourceTree = "<group>"; };
 		50ADFF88201F53D600D50D53 /* Plugin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Plugin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		50ADFF8B201F53D600D50D53 /* Plugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Plugin.h; sourceTree = "<group>"; };
 		50ADFF8C201F53D600D50D53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -90,16 +90,6 @@
 		50ADFF7E201F53D600D50D53 = {
 			isa = PBXGroup;
 			children = (
-				4A8BF040248DEEE500F4FF92 /* GNSBeaconStrategy.h */,
-				4A8BF03C248DEEE500F4FF92 /* GNSError.h */,
-				4A8BF03E248DEEE500F4FF92 /* GNSMessage.h */,
-				4A8BF037248DEEE500F4FF92 /* GNSMessageManager.h */,
-				4A8BF03F248DEEE500F4FF92 /* GNSMessages.h */,
-				4A8BF039248DEEE500F4FF92 /* GNSOperationStatus.h */,
-				4A8BF03B248DEEE500F4FF92 /* GNSPermission.h */,
-				4A8BF03D248DEEE500F4FF92 /* GNSPublicationParams.h */,
-				4A8BF038248DEEE500F4FF92 /* GNSStrategy.h */,
-				4A8BF03A248DEEE500F4FF92 /* GNSSubscriptionParams.h */,
 				50ADFF8A201F53D600D50D53 /* Plugin */,
 				50ADFF95201F53D600D50D53 /* PluginTests */,
 				50ADFF89201F53D600D50D53 /* Products */,
@@ -120,6 +110,16 @@
 		50ADFF8A201F53D600D50D53 /* Plugin */ = {
 			isa = PBXGroup;
 			children = (
+				4ADE7085248E84D000996F11 /* GNSBeaconStrategy.h */,
+				4ADE7084248E84CF00996F11 /* GNSError.h */,
+				4ADE7086248E84D000996F11 /* GNSMessage.h */,
+				4ADE708A248E84D000996F11 /* GNSMessageManager.h */,
+				4ADE708B248E84D000996F11 /* GNSMessages.h */,
+				4ADE7089248E84D000996F11 /* GNSOperationStatus.h */,
+				4ADE7083248E84CF00996F11 /* GNSPermission.h */,
+				4ADE7087248E84D000996F11 /* GNSPublicationParams.h */,
+				4ADE7088248E84D000996F11 /* GNSStrategy.h */,
+				4ADE708C248E84D000996F11 /* GNSSubscriptionParams.h */,
 				50E1A94720377CB70090CE1A /* Plugin.swift */,
 				50ADFF8B201F53D600D50D53 /* Plugin.h */,
 				50ADFFA72020EE4F00D50D53 /* Plugin.m */,
@@ -165,17 +165,17 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4ADE7094248E84D000996F11 /* GNSMessageManager.h in Headers */,
+				4ADE7091248E84D000996F11 /* GNSPublicationParams.h in Headers */,
+				4ADE7092248E84D000996F11 /* GNSStrategy.h in Headers */,
+				4ADE7095248E84D000996F11 /* GNSMessages.h in Headers */,
+				4ADE708F248E84D000996F11 /* GNSBeaconStrategy.h in Headers */,
+				4ADE708D248E84D000996F11 /* GNSPermission.h in Headers */,
+				4ADE708E248E84D000996F11 /* GNSError.h in Headers */,
 				50ADFF99201F53D600D50D53 /* Plugin.h in Headers */,
-				4A8BF041248DEEE500F4FF92 /* GNSMessageManager.h in Headers */,
-				4A8BF042248DEEE500F4FF92 /* GNSStrategy.h in Headers */,
-				4A8BF043248DEEE500F4FF92 /* GNSOperationStatus.h in Headers */,
-				4A8BF044248DEEE500F4FF92 /* GNSSubscriptionParams.h in Headers */,
-				4A8BF045248DEEE500F4FF92 /* GNSPermission.h in Headers */,
-				4A8BF046248DEEE500F4FF92 /* GNSError.h in Headers */,
-				4A8BF047248DEEE500F4FF92 /* GNSPublicationParams.h in Headers */,
-				4A8BF048248DEEE500F4FF92 /* GNSMessage.h in Headers */,
-				4A8BF049248DEEE500F4FF92 /* GNSMessages.h in Headers */,
-				4A8BF04A248DEEE500F4FF92 /* GNSBeaconStrategy.h in Headers */,
+				4ADE7090248E84D000996F11 /* GNSMessage.h in Headers */,
+				4ADE7093248E84D000996F11 /* GNSOperationStatus.h in Headers */,
+				4ADE7096248E84D000996F11 /* GNSSubscriptionParams.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,7 +191,7 @@
 				50ADFF84201F53D600D50D53 /* Frameworks */,
 				50ADFF85201F53D600D50D53 /* Headers */,
 				50ADFF86201F53D600D50D53 /* Resources */,
-				EDB9CA0BAFE2A6263CC5D568 /* [CP] Copy Pods Resources */,
+				9BE86BE50AA37C34CD95D5F5 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -211,7 +211,7 @@
 				50ADFF8E201F53D600D50D53 /* Frameworks */,
 				50ADFF8F201F53D600D50D53 /* Resources */,
 				CCA81D3B7E26D0D727D24C84 /* [CP] Embed Pods Frameworks */,
-				347C28045A07AB1EBB118558 /* [CP] Copy Pods Resources */,
+				A4AEADADA09260BF4FCF3274 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -299,7 +299,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		347C28045A07AB1EBB118558 /* [CP] Copy Pods Resources */ = {
+		9BE86BE50AA37C34CD95D5F5 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Plugin/Pods-Plugin-resources.sh",
+				"${PODS_ROOT}/NearbyMessages/Resources/resources/GNSSharedResources.bundle",
+				"${PODS_ROOT}/NearbyMessages/Resources/resources/ic_expand_more.xcassets",
+				"${PODS_ROOT}/NearbyMessages/Resources/resources/ic_nearby_48pt.xcassets",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GNSSharedResources.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Assets.car",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Plugin/Pods-Plugin-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A4AEADADA09260BF4FCF3274 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -356,27 +377,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PluginTests/Pods-PluginTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		EDB9CA0BAFE2A6263CC5D568 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Plugin/Pods-Plugin-resources.sh",
-				"${PODS_ROOT}/NearbyMessages/Resources/resources/GNSSharedResources.bundle",
-				"${PODS_ROOT}/NearbyMessages/Resources/resources/ic_expand_more.xcassets",
-				"${PODS_ROOT}/NearbyMessages/Resources/resources/ic_nearby_48pt.xcassets",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GNSSharedResources.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Assets.car",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Plugin/Pods-Plugin-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
