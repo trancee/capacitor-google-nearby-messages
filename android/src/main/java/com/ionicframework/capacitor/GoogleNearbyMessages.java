@@ -319,13 +319,13 @@ public class GoogleNearbyMessages extends Plugin {
 
             JSObject messageObject = call.getObject("message", null);
             if (messageObject != null) {
-                String content = messageObject.getString("content");
+                String content = messageObject.getString("content", null);
                 if (content != null) {
                     call.reject("Must provide message with content");
                     return;    
                 }
 
-                String type = messageObject.getString("type");
+                String type = messageObject.getString("type", null);
                 if (type != null) {
                     call.reject("Must provide message with type");
                     return;    
