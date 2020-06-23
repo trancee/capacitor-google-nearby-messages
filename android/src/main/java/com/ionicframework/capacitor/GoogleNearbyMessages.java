@@ -322,13 +322,13 @@ public class GoogleNearbyMessages extends Plugin {
                 String content = messageObject.getString("content", null);
                 if (content == null || content.length() == 0) {
                     call.reject("Must provide message with content");
-                    return;    
+                    return;
                 }
 
                 String type = messageObject.getString("type", null);
-                if (type != null || type.length() == 0) {
+                if (type == null || type.length() == 0) {
                     call.reject("Must provide message with type");
-                    return;    
+                    return;
                 }
 
                 // A message that will be shared with nearby devices.
@@ -340,7 +340,7 @@ public class GoogleNearbyMessages extends Plugin {
                 );
             } else {
                 call.reject("Must provide message");
-                return;    
+                return;
             }
 
             JSObject optionsObject = call.getObject("options", null);
