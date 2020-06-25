@@ -28,10 +28,9 @@ import com.google.android.gms.nearby.messages.SubscribeCallback;
 import com.google.android.gms.nearby.messages.SubscribeOptions;
 import com.google.android.gms.tasks.Task;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @NativePlugin(
@@ -67,7 +66,7 @@ public class GoogleNearbyMessages extends Plugin {
     @PluginMethod()
     public void initialize(PluginCall call) {
         try {
-            Log.i(getLogTag(), "Initializing.");
+//            Log.i(getLogTag(), "Initializing.");
 
             if (mMessagesClient == null) {
                 // Creates a new instance of MessagesClient.
@@ -305,7 +304,7 @@ public class GoogleNearbyMessages extends Plugin {
         }
 
         try {
-            Log.i(getLogTag(), "Publishing.");
+//            Log.i(getLogTag(), "Publishing.");
 
             Message message = null;
             Strategy strategy = null;
@@ -471,7 +470,7 @@ public class GoogleNearbyMessages extends Plugin {
         }
 
         try {
-            Log.i(getLogTag(), "Unpublishing.");
+//            Log.i(getLogTag(), "Unpublishing.");
 
             String uuid = call.getString("uuid", null);
             if (uuid == null || uuid.length() == 0) {
@@ -526,7 +525,7 @@ public class GoogleNearbyMessages extends Plugin {
         }
 
         try {
-            Log.i(getLogTag(), "Subscribing.");
+//            Log.i(getLogTag(), "Subscribing.");
 
             Strategy strategy = null;
             MessageFilter filter = null;
@@ -742,7 +741,7 @@ public class GoogleNearbyMessages extends Plugin {
         }
 
         try {
-            Log.i(getLogTag(), "Unsubscribing.");
+//            Log.i(getLogTag(), "Unsubscribing.");
 
             doUnsubscribe();
 
@@ -770,7 +769,7 @@ public class GoogleNearbyMessages extends Plugin {
         }
 
         try {
-            Log.i(getLogTag(), "Pausing.");
+//            Log.i(getLogTag(), "Pausing.");
 
             for (MessageOptions messageOptions : mMessages.values()) {
                 doUnpublish(messageOptions.message);
@@ -793,7 +792,7 @@ public class GoogleNearbyMessages extends Plugin {
         }
 
         try {
-            Log.i(getLogTag(), "Resuming.");
+//            Log.i(getLogTag(), "Resuming.");
 
             for (MessageOptions messageOptions : mMessages.values()) {
                 doPublish(messageOptions.message, messageOptions.options)
@@ -830,29 +829,32 @@ public class GoogleNearbyMessages extends Plugin {
 
     @PluginMethod()
     public void status(PluginCall call) {
-        boolean isPublishing = (mMessages.size() > 0);
+        try {
+//            Log.i(getLogTag(), "Status.");
 
-        List<String> uuids = new ArrayList<>();
-        for (UUID messageUUID : mMessages.keySet()) {
-            uuids.add(messageUUID.toString());
+            boolean isPublishing = (mMessages.size() > 0);
+
+            Set<UUID> uuids = mMessages.keySet();
+
+            Log.i(getLogTag(),
+                    String.format(
+                            "status(isPublishing=%s, isSubscribing=%s, uuids=%s)",
+                            isPublishing, isSubscribing, uuids));
+
+//            Toast.makeText(getContext(),
+//                    String.format(
+//                            "status(isPublishing=%s, isSubscribing=%s)",
+//                            isPublishing, isSubscribing),
+//                    Toast.LENGTH_SHORT).show();
+
+            JSObject data = new JSObject();
+            data.put("isPublishing", isPublishing);
+            data.put("isSubscribing", isSubscribing);
+            data.put("uuids", uuids);
+
+            call.success(data);
+        } catch (Exception e) {
+            call.error(e.getLocalizedMessage(), e);
         }
-
-        Log.i(getLogTag(),
-                String.format(
-                        "status(isPublishing=%s, isSubscribing=%s, uuids=[%s])",
-                        isPublishing, isSubscribing, uuids));
-
-//        Toast.makeText(getContext(),
-//                String.format(
-//                        "status(isPublishing=%s, isSubscribing=%s)",
-//                        isPublishing, isSubscribing),
-//                Toast.LENGTH_SHORT).show();
-
-        JSObject data = new JSObject();
-        data.put("isPublishing", isPublishing);
-        data.put("isSubscribing", isSubscribing);
-        data.put("uuids", uuids);
-
-        call.success(data);
     }
 }
