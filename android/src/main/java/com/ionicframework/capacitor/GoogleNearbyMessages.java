@@ -1,10 +1,12 @@
 package com.ionicframework.capacitor;
 
 import android.Manifest;
+import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
@@ -32,6 +34,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+interface Constants {
+    int REQUEST_CODE_PERMISSION = 2020;
+    String BLUETOOTH_PERMISSION = Manifest.permission.BLUETOOTH;
+    String NOT_INITIALIZED = "Nearby Messages API not initialized";
+    String PUBLISH_MESSAGE_CONTENT = "Must provide message with content";
+    String PUBLISH_MESSAGE_TYPE = "Must provide message with type";
+    String PUBLISH_MESSAGE = "Must provide message";
+    String MESSAGE_UUID_NOT_FOUND = "Message UUID not found";
+}
 
 @NativePlugin(
         // Some Plugins will require you to request permissions.
@@ -299,7 +311,7 @@ public class GoogleNearbyMessages extends Plugin {
     // https://developers.google.com/nearby/messages/android/pub-sub#publish_a_message
     public void publish(PluginCall call) {
         if (mMessagesClient == null) {
-            call.reject("Nearby Messages API not initialized");
+            call.reject(Constants.NOT_INITIALIZED);
             return;
         }
 
@@ -313,13 +325,13 @@ public class GoogleNearbyMessages extends Plugin {
             if (messageObject != null) {
                 String content = messageObject.getString("content", null);
                 if (content == null || content.length() == 0) {
-                    call.reject("Must provide message with content");
+                    call.reject(Constants.PUBLISH_MESSAGE_CONTENT);
                     return;
                 }
 
                 String type = messageObject.getString("type", null);
                 if (type == null || type.length() == 0) {
-                    call.reject("Must provide message with type");
+                    call.reject(Constants.PUBLISH_MESSAGE_TYPE);
                     return;
                 }
 
@@ -331,7 +343,7 @@ public class GoogleNearbyMessages extends Plugin {
                         type
                 );
             } else {
-                call.reject("Must provide message");
+                call.reject(Constants.PUBLISH_MESSAGE);
                 return;
             }
 
@@ -425,7 +437,7 @@ public class GoogleNearbyMessages extends Plugin {
             doPublish(message, options.build())
                     .addOnSuccessListener(
                             (Void) -> {
-                                Log.i(getLogTag(), "Publish Success.");
+//                                Log.i(getLogTag(), "Publish Success.");
 
 //                                Toast.makeText(getContext(), "We are publishing", Toast.LENGTH_SHORT).show();
 
@@ -438,7 +450,7 @@ public class GoogleNearbyMessages extends Plugin {
                             })
                     .addOnFailureListener(
                             (Exception e) -> {
-                                Log.e(getLogTag(), "Publish Failure.", e);
+//                                Log.e(getLogTag(), "Publish Failure.", e);
 
 //                                Toast.makeText(getContext(), "Unable to start publishing: " + e, Toast.LENGTH_SHORT).show();
 
@@ -465,7 +477,7 @@ public class GoogleNearbyMessages extends Plugin {
     // https://developers.google.com/nearby/messages/android/pub-sub#unpublish_a_message
     public void unpublish(PluginCall call) {
         if (mMessagesClient == null) {
-            call.reject("Nearby Messages API not initialized");
+            call.reject(Constants.NOT_INITIALIZED);
             return;
         }
 
@@ -484,7 +496,7 @@ public class GoogleNearbyMessages extends Plugin {
 
                 MessageOptions messageOptions = mMessages.get(messageUUID);
                 if (messageOptions == null) {
-                    call.reject("Message UUID not found");
+                    call.reject(Constants.MESSAGE_UUID_NOT_FOUND);
                     return;
                 }
 
@@ -520,7 +532,7 @@ public class GoogleNearbyMessages extends Plugin {
     // https://developers.google.com/nearby/messages/android/pub-sub#subscribe_to_messages
     public void subscribe(PluginCall call) {
         if (mMessagesClient == null) {
-            call.reject("Nearby Messages API not initialized");
+            call.reject(Constants.NOT_INITIALIZED);
             return;
         }
 
@@ -697,7 +709,7 @@ public class GoogleNearbyMessages extends Plugin {
             doSubscribe()
                     .addOnSuccessListener(
                             (Void) -> {
-                                Log.i(getLogTag(), "Subscribe Success.");
+//                                Log.i(getLogTag(), "Subscribe Success.");
 
 //                                Toast.makeText(getContext(), "We are subscribed", Toast.LENGTH_SHORT).show();
 
@@ -707,7 +719,7 @@ public class GoogleNearbyMessages extends Plugin {
                             })
                     .addOnFailureListener(
                             (Exception e) -> {
-                                Log.e(getLogTag(), "Subscribe Failure.", e);
+//                                Log.e(getLogTag(), "Subscribe Failure.", e);
 
 //                                Toast.makeText(getContext(), "Unable to start subscribing: " + e, Toast.LENGTH_SHORT).show();
 
@@ -736,7 +748,7 @@ public class GoogleNearbyMessages extends Plugin {
     // https://developers.google.com/nearby/messages/android/pub-sub#unsubscribe
     public void unsubscribe(PluginCall call) {
         if (mMessagesClient == null) {
-            call.reject("Nearby Messages API not initialized");
+            call.reject(Constants.NOT_INITIALIZED);
             return;
         }
 
@@ -764,7 +776,7 @@ public class GoogleNearbyMessages extends Plugin {
     @PluginMethod()
     public void pause(PluginCall call) {
         if (mMessagesClient == null) {
-            call.reject("Nearby Messages API not initialized");
+            call.reject(Constants.NOT_INITIALIZED);
             return;
         }
 
@@ -787,7 +799,7 @@ public class GoogleNearbyMessages extends Plugin {
     @PluginMethod()
     public void resume(PluginCall call) {
         if (mMessagesClient == null) {
-            call.reject("Nearby Messages API not initialized");
+            call.reject(Constants.NOT_INITIALIZED);
             return;
         }
 
@@ -798,24 +810,24 @@ public class GoogleNearbyMessages extends Plugin {
                 doPublish(messageOptions.message, messageOptions.options)
                         .addOnSuccessListener(
                                 (Void) -> {
-                                    Log.i(getLogTag(), "Publish Success.");
+//                                    Log.i(getLogTag(), "Publish Success.");
                                 })
                         .addOnFailureListener(
                                 (Exception e) -> {
-                                    Log.e(getLogTag(), "Publish Failure.", e);
+//                                    Log.e(getLogTag(), "Publish Failure.", e);
                                 });
             }
             if (isSubscribing) {
                 doSubscribe()
                         .addOnSuccessListener(
                                 (Void) -> {
-                                    Log.i(getLogTag(), "Subscribe Success.");
+//                                    Log.i(getLogTag(), "Subscribe Success.");
 
                                     isSubscribing = true;
                                 })
                         .addOnFailureListener(
                                 (Exception e) -> {
-                                    Log.e(getLogTag(), "Subscribe Failure.", e);
+//                                    Log.e(getLogTag(), "Subscribe Failure.", e);
 
                                     isSubscribing = false;
                                 });
@@ -850,9 +862,31 @@ public class GoogleNearbyMessages extends Plugin {
             JSObject data = new JSObject();
             data.put("isPublishing", isPublishing);
             data.put("isSubscribing", isSubscribing);
-            data.put("uuids", uuids);
+            data.put("uuids", new JSArray(uuids));
 
             call.success(data);
+        } catch (Exception e) {
+            call.error(e.getLocalizedMessage(), e);
+        }
+    }
+
+    @PluginMethod()
+    public void requestPermission(PluginCall call) {
+        try {
+//            Log.i(getLogTag(), "Requesting Permission.");
+
+            if (!hasPermission(Constants.BLUETOOTH_PERMISSION)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    bridge.getActivity().requestPermissions(
+                            new String[]{
+                                    Constants.BLUETOOTH_PERMISSION
+                            },
+                            Constants.REQUEST_CODE_PERMISSION
+                    );
+                }
+
+                call.success();
+            }
         } catch (Exception e) {
             call.error(e.getLocalizedMessage(), e);
         }

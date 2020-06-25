@@ -235,6 +235,8 @@ export interface GoogleNearbyMessagesPlugin {
 
   status(): Promise<Status>;
 
+  requestPermission(): Promise<void>;
+
   // Called when permission is granted or revoked for this app to use Nearby.
   addListener(eventName: 'onPermissionChanged', listenerFunc: (permissionGranted: boolean) => void): PluginListenerHandle;
 

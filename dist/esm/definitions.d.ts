@@ -89,6 +89,7 @@ export interface GoogleNearbyMessagesPlugin {
     pause(): Promise<void>;
     resume(): Promise<void>;
     status(): Promise<Status>;
+    requestPermission(): Promise<void>;
     addListener(eventName: 'onPermissionChanged', listenerFunc: (permissionGranted: boolean) => void): PluginListenerHandle;
     addListener(eventName: 'onBleSignalChanged', listenerFunc: (message: Message, bleSignal: BleSignal) => void): PluginListenerHandle;
     addListener(eventName: 'onDistanceChanged', listenerFunc: (message: Message, distance: Distance) => void): PluginListenerHandle;
