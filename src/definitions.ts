@@ -176,6 +176,11 @@ export interface StatusCallback {
 export type UUID = {
   uuid: string;
 }
+export type Status = {
+  isPublishing: boolean;
+  isSubscribing: boolean;
+  uuids: string[];
+}
 
 // API which allows your app to publish simple messages and subscribe to receive those messages from nearby devices.
 export interface GoogleNearbyMessagesPlugin {
@@ -194,7 +199,7 @@ export interface GoogleNearbyMessagesPlugin {
   unpublish(options: {
     // A Message that is currently published
     // UNUSED // message: Message,
-    uuid: UUID,
+    uuid?: UUID,
   }): Promise<void>;
 
   // Subscribes for published messages from nearby devices, using the default options in DEFAULT.
@@ -228,7 +233,7 @@ export interface GoogleNearbyMessagesPlugin {
   pause(): Promise<void>;
   resume(): Promise<void>;
 
-  status(): Promise<void>;
+  status(): Promise<Status>;
 
   // Called when permission is granted or revoked for this app to use Nearby.
   addListener(eventName: 'onPermissionChanged', listenerFunc: (permissionGranted: boolean) => void): PluginListenerHandle;

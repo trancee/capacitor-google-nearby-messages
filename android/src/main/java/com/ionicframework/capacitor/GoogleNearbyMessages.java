@@ -28,7 +28,9 @@ import com.google.android.gms.nearby.messages.SubscribeCallback;
 import com.google.android.gms.nearby.messages.SubscribeOptions;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -287,7 +289,6 @@ public class GoogleNearbyMessages extends Plugin {
                     }
                 };
             }
-            ;
 
             call.success();
         } catch (Exception e) {
@@ -474,19 +475,22 @@ public class GoogleNearbyMessages extends Plugin {
 
             String uuid = call.getString("uuid", null);
             if (uuid == null || uuid.length() == 0) {
-                call.reject("Must provide message UUID");
-                return;
+                // Unpublish all messages.
+                for (UUID messageUUID : mMessages.keySet()) {
+                    doUnpublish(messageUUID);
+                }
+            } else {
+                // Unpublish message.
+                UUID messageUUID = UUID.fromString(uuid);
+
+                MessageOptions messageOptions = mMessages.get(messageUUID);
+                if (messageOptions == null) {
+                    call.reject("Message UUID not found");
+                    return;
+                }
+
+                doUnpublish(messageUUID);
             }
-
-            UUID messageUUID = UUID.fromString(uuid);
-
-            MessageOptions messageOptions = mMessages.get(messageUUID);
-            if (messageOptions == null) {
-                call.reject("Message UUID not found");
-                return;
-            }
-
-            doUnpublish(messageUUID);
 
             call.success();
         } catch (Exception e) {
@@ -749,13 +753,11 @@ public class GoogleNearbyMessages extends Plugin {
     }
 
     private void doUnsubscribe() {
-        if (mMessagesClient != null) {
-            // Cancels an existing subscription.
-            mMessagesClient.unsubscribe(
-                    // A MessageListener implementation that is currently subscribed
-                    mMessageListener
-            );
-        }
+        // Cancels an existing subscription.
+        mMessagesClient.unsubscribe(
+                // A MessageListener implementation that is currently subscribed
+                mMessageListener
+        );
 
         isSubscribing = false;
     }
@@ -830,10 +832,15 @@ public class GoogleNearbyMessages extends Plugin {
     public void status(PluginCall call) {
         boolean isPublishing = (mMessages.size() > 0);
 
+        List<String> uuids = new ArrayList<>();
+        for (UUID messageUUID : mMessages.keySet()) {
+            uuids.add(messageUUID.toString());
+        }
+
         Log.i(getLogTag(),
                 String.format(
-                        "status(isPublishing=%s, isSubscribing=%s)",
-                        isPublishing, isSubscribing));
+                        "status(isPublishing=%s, isSubscribing=%s, uuids=[%s])",
+                        isPublishing, isSubscribing, uuids));
 
 //        Toast.makeText(getContext(),
 //                String.format(
@@ -844,6 +851,7 @@ public class GoogleNearbyMessages extends Plugin {
         JSObject data = new JSObject();
         data.put("isPublishing", isPublishing);
         data.put("isSubscribing", isSubscribing);
+        data.put("uuids", uuids);
 
         call.success(data);
     }

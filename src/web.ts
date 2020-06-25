@@ -8,6 +8,7 @@ import {
   SubscribeOptions,
   // UNUSED // StatusCallback,
   UUID,
+  Status,
 } from './definitions';
 
 export class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMessagesPlugin {
@@ -38,7 +39,7 @@ export class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMe
   async unpublish(options: {
     // A Message that is currently published
     // UNUSED // message: Message,
-    uuid: UUID,
+    uuid?: UUID,
   }): Promise<void> {
     console.log("unpublish", options);
     throw new Error("Method not implemented.");
@@ -93,7 +94,7 @@ export class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMe
     throw new Error("Method not implemented.");
   }
 
-  async status(): Promise<void> {
+  async status(): Promise<Status> {
     console.log("status");
     throw new Error("Method not implemented.");
   }

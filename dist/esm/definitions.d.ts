@@ -68,6 +68,11 @@ export interface SubscribeOptions {
 export declare type UUID = {
     uuid: string;
 };
+export declare type Status = {
+    isPublishing: boolean;
+    isSubscribing: boolean;
+    uuids: string[];
+};
 export interface GoogleNearbyMessagesPlugin {
     initialize(): Promise<void>;
     publish(options: {
@@ -75,7 +80,7 @@ export interface GoogleNearbyMessagesPlugin {
         options?: PublishOptions;
     }): Promise<UUID>;
     unpublish(options: {
-        uuid: UUID;
+        uuid?: UUID;
     }): Promise<void>;
     subscribe(options: {
         options?: SubscribeOptions;
@@ -83,7 +88,7 @@ export interface GoogleNearbyMessagesPlugin {
     unsubscribe(options: {}): Promise<void>;
     pause(): Promise<void>;
     resume(): Promise<void>;
-    status(): Promise<void>;
+    status(): Promise<Status>;
     addListener(eventName: 'onPermissionChanged', listenerFunc: (permissionGranted: boolean) => void): PluginListenerHandle;
     addListener(eventName: 'onBleSignalChanged', listenerFunc: (message: Message, bleSignal: BleSignal) => void): PluginListenerHandle;
     addListener(eventName: 'onDistanceChanged', listenerFunc: (message: Message, distance: Distance) => void): PluginListenerHandle;
