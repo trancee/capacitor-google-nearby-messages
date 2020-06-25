@@ -65,13 +65,18 @@ export interface SubscribeOptions {
     strategy?: Strategy;
     filter: MessageFilter;
 }
+export declare type UUID = {
+    uuid: string;
+};
 export interface GoogleNearbyMessagesPlugin {
     initialize(): Promise<void>;
     publish(options: {
         message: Message;
         options?: PublishOptions;
+    }): Promise<UUID>;
+    unpublish(options: {
+        uuid: UUID;
     }): Promise<void>;
-    unpublish(options: {}): Promise<void>;
     subscribe(options: {
         options?: SubscribeOptions;
     }): Promise<void>;
@@ -84,8 +89,8 @@ export interface GoogleNearbyMessagesPlugin {
     addListener(eventName: 'onDistanceChanged', listenerFunc: (message: Message, distance: Distance) => void): PluginListenerHandle;
     addListener(eventName: 'onFound', listenerFunc: (message: Message) => void): PluginListenerHandle;
     addListener(eventName: 'onLost', listenerFunc: (message: Message) => void): PluginListenerHandle;
-    addListener(eventName: 'onPublishExpired', listenerFunc: () => void): PluginListenerHandle;
-    addListener(eventName: 'onSubscribeExpired', listenerFunc: () => void): PluginListenerHandle;
+    addListener(eventName: 'onPublishExpired', listenerFunc: (uuid: UUID) => void): PluginListenerHandle;
+    addListener(eventName: 'onSubscribeExpired', listenerFunc: (uuid: UUID) => void): PluginListenerHandle;
 }
 export declare const MAX_CONTENT_SIZE_BYTES = 102400;
 export declare const MAX_TYPE_LENGTH = 32;

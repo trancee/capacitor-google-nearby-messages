@@ -173,6 +173,10 @@ export interface StatusCallback {
 }
 */
 
+export type UUID = {
+  uuid: string;
+}
+
 // API which allows your app to publish simple messages and subscribe to receive those messages from nearby devices.
 export interface GoogleNearbyMessagesPlugin {
   // Initializes the Nearby Messages API.
@@ -184,12 +188,13 @@ export interface GoogleNearbyMessagesPlugin {
     message: Message,
     // A PublishOptions object for this operation
     options?: PublishOptions,
-  }): Promise<void>;
+  }): Promise<UUID>;
 
   // Cancels an existing published message.
   unpublish(options: {
     // A Message that is currently published
     // UNUSED // message: Message,
+    uuid: UUID,
   }): Promise<void>;
 
   // Subscribes for published messages from nearby devices, using the default options in DEFAULT.
@@ -238,9 +243,9 @@ export interface GoogleNearbyMessagesPlugin {
   addListener(eventName: 'onLost', listenerFunc: (message: Message) => void): PluginListenerHandle;
 
   // The published message is expired.
-  addListener(eventName: 'onPublishExpired', listenerFunc: () => void): PluginListenerHandle;
+  addListener(eventName: 'onPublishExpired', listenerFunc: (uuid: UUID) => void): PluginListenerHandle;
   // The subscription is expired.
-  addListener(eventName: 'onSubscribeExpired', listenerFunc: () => void): PluginListenerHandle;
+  addListener(eventName: 'onSubscribeExpired', listenerFunc: (uuid: UUID) => void): PluginListenerHandle;
 }
 
 // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/Message#constant-summary

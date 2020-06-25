@@ -26,7 +26,10 @@ import com.google.android.gms.nearby.messages.StatusCallback;
 import com.google.android.gms.nearby.messages.Strategy;
 import com.google.android.gms.nearby.messages.SubscribeCallback;
 import com.google.android.gms.nearby.messages.SubscribeOptions;
+import com.google.android.gms.tasks.Task;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @NativePlugin(
@@ -42,254 +45,251 @@ import java.util.UUID;
         }
 )
 public class GoogleNearbyMessages extends Plugin {
-    private boolean isSubscribing = false;
-    private boolean isPublishing = false;
+    private static class MessageOptions {
+        Message message;
+        PublishOptions options;
+
+        MessageOptions(Message message, PublishOptions options) {
+            this.message = message;
+            this.options = options;
+        }
+    }
 
     private MessagesClient mMessagesClient;
     private MessageListener mMessageListener;
-    private Message mActiveMessage;
+    private Map<UUID, MessageOptions> mMessages = new HashMap<>();
 
-    private PublishOptions mPublishOptions;
+    private boolean isSubscribing = false;
     private SubscribeOptions mSubscribeOptions;
 
     @PluginMethod()
     public void initialize(PluginCall call) {
         try {
-            //Log.i(getLogTag(), "Initializing.");
+            Log.i(getLogTag(), "Initializing.");
 
-            {
-                doUnpublish();
+            if (mMessagesClient == null) {
+                // Creates a new instance of MessagesClient.
+                mMessagesClient = Nearby.getMessagesClient(getContext(),
+                        // Configuration parameters for the Messages API.
+                        new MessagesOptions.Builder()
+                                // Sets which NearbyPermissions are requested for Nearby.
+                                .setPermissions(
+                                        // Determines the scope of permissions Nearby will ask for at connection time.
+                                        NearbyPermissions.DEFAULT
+                                )
+                                .build()
+                );
 
-                mActiveMessage = null;
-                mPublishOptions = null;
+                // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
+                mMessagesClient.registerStatusCallback(
+                        // Callbacks for global status changes that affect a client of Nearby Messages.
+                        new StatusCallback() {
+                            @Override
+                            // Called when permission is granted or revoked for this app to use Nearby.
+                            public void onPermissionChanged(boolean permissionGranted) {
+                                super.onPermissionChanged(permissionGranted);
 
-                isPublishing = false;
+                                Log.i(getLogTag(),
+                                        String.format(
+                                                "onPermissionChanged(permissionGranted=%s)",
+                                                permissionGranted));
+
+//                                Toast.makeText(getContext(),
+//                                        String.format(
+//                                                "onPermissionChanged(permissionGranted=%s)",
+//                                                permissionGranted),
+//                                        Toast.LENGTH_SHORT).show();
+
+                                JSObject data = new JSObject();
+                                data.put("permissionGranted", permissionGranted);
+
+                                notifyListeners("onPermissionChanged", data);
+                            }
+                        }
+                );
             }
 
-            {
-                doUnsubscribe();
+            if (mMessageListener == null) {
+                // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/MessageListener
+                mMessageListener = new MessageListener() {
+                    // A listener for receiving subscribed messages. These callbacks will be delivered when messages are found or lost.
 
-                mSubscribeOptions = null;
+                    /**
+                     * Called when the Bluetooth Low Energy (BLE) signal associated with a message changes.
+                     * <p>
+                     * This is currently only called for BLE beacon messages.
+                     * <p>
+                     * For example, this is called when we see the first BLE advertisement
+                     * frame associated with a message; or when we see subsequent frames with
+                     * significantly different received signal strength indicator (RSSI)
+                     * readings.
+                     * <p>
+                     * For more information, see the MessageListener Javadocs.
+                     */
+                    // https://developers.google.com/nearby/messages/android/advanced#rssi_and_distance_callbacks
+                    @Override
+                    public void onBleSignalChanged(final Message message, final BleSignal bleSignal) {
+                        Log.i(getLogTag(),
+                                String.format(
+                                        "onBleSignalChanged(message=%s, bleSignal=%s)",
+                                        message, bleSignal));
 
-                isSubscribing = false;
-            }
+//                        Toast.makeText(getContext(),
+//                                String.format(
+//                                        "onBleSignalChanged(message=%s, bleSignal=%s)",
+//                                        message, bleSignal),
+//                                Toast.LENGTH_SHORT).show();
 
-            // Creates a new instance of MessagesClient.
-            mMessagesClient = Nearby.getMessagesClient(getContext(),
-                    // Configuration parameters for the Messages API.
-                    new MessagesOptions.Builder()
-                            // Sets which NearbyPermissions are requested for Nearby.
-                            .setPermissions(
-                                    // Determines the scope of permissions Nearby will ask for at connection time.
-                                    NearbyPermissions.DEFAULT
-                            )
-                            .build()
-            );
+                        {
+                            JSObject messageObject = new JSObject();
+                            // Returns the type that describes the content of the message.
+                            messageObject.put("type", message.getType());
+                            // Returns the raw bytes content of the message.
+                            messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
+                            // Returns the non-empty string for a public namespace or empty for the private one.
+                            messageObject.put("namespace", message.getNamespace());
 
-            // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
-            mMessagesClient.registerStatusCallback(
-                    // Callbacks for global status changes that affect a client of Nearby Messages.
-                    new StatusCallback() {
-                        @Override
-                        // Called when permission is granted or revoked for this app to use Nearby.
-                        public void onPermissionChanged(boolean permissionGranted) {
-                            super.onPermissionChanged(permissionGranted);
+                            JSObject bleSignalObject = new JSObject();
+                            // Returns the received signal strength indicator (RSSI) in dBm.
+                            bleSignalObject.put("rssi", bleSignal.getRssi());
+                            // Returns the transmission power level at 1 meter, in dBm.
+                            bleSignalObject.put("txPower", bleSignal.getTxPower());
 
-                            Log.i(getLogTag(),
-                                    String.format(
-                                            "onPermissionChanged(permissionGranted=%s)",
-                                            permissionGranted));
-                            /*
-                            Toast.makeText(getContext(),
-                                    String.format(
-                                            "onPermissionChanged(permissionGranted=%s)",
-                                            permissionGranted),
-                                    Toast.LENGTH_SHORT).show();
-                            */
                             JSObject data = new JSObject();
-                            data.put("permissionGranted", permissionGranted);
+                            data.put("message", messageObject);
+                            data.put("bleSignal", bleSignalObject);
 
-                            notifyListeners("onPermissionChanged", data);
+                            notifyListeners("onBleSignalChanged", data);
                         }
                     }
-            );
 
-            // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/MessageListener
-            mMessageListener = new MessageListener() {
-                // A listener for receiving subscribed messages. These callbacks will be delivered when messages are found or lost.
+                    /**
+                     * Called when Nearby's estimate of the distance to a message changes.
+                     * <p>
+                     * This is currently only called for BLE beacon messages.
+                     * <p>
+                     * For example, this is called when we first gather enough information
+                     * to make a distance estimate; or when the message remains nearby,
+                     * but gets closer or further away.
+                     * <p>
+                     * For more information, see the MessageListener Javadocs.
+                     */
+                    // https://developers.google.com/nearby/messages/android/advanced#rssi_and_distance_callbacks
+                    @Override
+                    public void onDistanceChanged(final Message message, final Distance distance) {
+                        Log.i(getLogTag(),
+                                String.format(
+                                        "onDistanceChanged(message=%s, distance=%s)",
+                                        message, distance));
 
-                /**
-                 * Called when the Bluetooth Low Energy (BLE) signal associated with a message changes.
-                 *
-                 * This is currently only called for BLE beacon messages.
-                 *
-                 * For example, this is called when we see the first BLE advertisement
-                 * frame associated with a message; or when we see subsequent frames with
-                 * significantly different received signal strength indicator (RSSI)
-                 * readings.
-                 *
-                 * For more information, see the MessageListener Javadocs.
-                 */
-                // https://developers.google.com/nearby/messages/android/advanced#rssi_and_distance_callbacks
-                @Override
-                public void onBleSignalChanged(final Message message, final BleSignal bleSignal) {
-                    Log.i(getLogTag(),
-                            String.format(
-                                    "onBleSignalChanged(message=%s, bleSignal=%s)",
-                                    message, bleSignal));
+//                        Toast.makeText(getContext(),
+//                                String.format(
+//                                        "onDistanceChanged(message=%s, distance=%s)",
+//                                        message, distance),
+//                                Toast.LENGTH_SHORT).show();
 
-                    Toast.makeText(getContext(),
-                            String.format(
-                                    "onBleSignalChanged(message=%s, bleSignal=%s)",
-                                    message, bleSignal),
-                            Toast.LENGTH_SHORT).show();
+                        {
+                            JSObject messageObject = new JSObject();
+                            // Returns the type that describes the content of the message.
+                            messageObject.put("type", message.getType());
+                            // Returns the raw bytes content of the message.
+                            messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
+                            // Returns the non-empty string for a public namespace or empty for the private one.
+                            messageObject.put("namespace", message.getNamespace());
 
-                    {
-                        JSObject messageObject = new JSObject();
-                        // Returns the type that describes the content of the message.
-                        messageObject.put("type", message.getType());
-                        // Returns the raw bytes content of the message.
-                        messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
-                        // Returns the non-empty string for a public namespace or empty for the private one.
-                        messageObject.put("namespace", message.getNamespace());
+                            JSObject distanceObject = new JSObject();
+                            // The accuracy of the distance estimate.
+                            distanceObject.put("accuracy", distance.getAccuracy());
+                            // The distance estimate, in meters.
+                            distanceObject.put("meters", distance.getMeters());
 
-                        JSObject bleSignalObject = new JSObject();
-                        // Returns the received signal strength indicator (RSSI) in dBm.
-                        bleSignalObject.put("rssi", bleSignal.getRssi());
-                        // Returns the transmission power level at 1 meter, in dBm.
-                        bleSignalObject.put("txPower", bleSignal.getTxPower());
+                            JSObject data = new JSObject();
+                            data.put("message", messageObject);
+                            data.put("distance", distanceObject);
 
-                        JSObject data = new JSObject();
-                        data.put("message", messageObject);
-                        data.put("bleSignal", bleSignalObject);
-
-                        notifyListeners("onBleSignalChanged", data);
+                            notifyListeners("onDistanceChanged", data);
+                        }
                     }
-                }
 
-                /**
-                 * Called when Nearby's estimate of the distance to a message changes.
-                 *
-                 * This is currently only called for BLE beacon messages.
-                 *
-                 * For example, this is called when we first gather enough information
-                 * to make a distance estimate; or when the message remains nearby,
-                 * but gets closer or further away.
-                 *
-                 * For more information, see the MessageListener Javadocs.
-                 */
-                // https://developers.google.com/nearby/messages/android/advanced#rssi_and_distance_callbacks
-                @Override
-                public void onDistanceChanged(final Message message, final Distance distance) {
-                    Log.i(getLogTag(),
-                            String.format(
-                                    "onDistanceChanged(message=%s, distance=%s)",
-                                    message, distance));
+                    /**
+                     * Called when messages are found.
+                     * <p>
+                     * This method is called the first time the message is seen nearby.
+                     * <p>
+                     * After a message has been lost (see onLost(Message)), it's eligible
+                     * for onFound(Message) again.
+                     */
+                    @Override
+                    public void onFound(final Message message) {
+                        Log.i(getLogTag(),
+                                String.format(
+                                        "onFound(message=%s, type=%s, content=%s)",
+                                        message, message.getType(), new String(message.getContent())));
 
-                    Toast.makeText(getContext(),
-                            String.format(
-                                    "onDistanceChanged(message=%s, distance=%s)",
-                                    message, distance),
-                            Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getContext(),
+//                                String.format(
+//                                        "onFound(message=%s, type=%s, content=%s)",
+//                                        message, message.getType(), new String(message.getContent())),
+//                                Toast.LENGTH_SHORT).show();
 
-                    {
-                        JSObject messageObject = new JSObject();
-                        // Returns the type that describes the content of the message.
-                        messageObject.put("type", message.getType());
-                        // Returns the raw bytes content of the message.
-                        messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
-                        // Returns the non-empty string for a public namespace or empty for the private one.
-                        messageObject.put("namespace", message.getNamespace());
+                        {
+                            JSObject messageObject = new JSObject();
+                            // Returns the type that describes the content of the message.
+                            messageObject.put("type", message.getType());
+                            // Returns the raw bytes content of the message.
+                            messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
+                            // Returns the non-empty string for a public namespace or empty for the private one.
+                            messageObject.put("namespace", message.getNamespace());
 
-                        JSObject distanceObject = new JSObject();
-                        // The accuracy of the distance estimate.
-                        distanceObject.put("accuracy", distance.getAccuracy());
-                        // The distance estimate, in meters.
-                        distanceObject.put("meters", distance.getMeters());
+                            JSObject data = new JSObject();
+                            data.put("message", messageObject);
 
-                        JSObject data = new JSObject();
-                        data.put("message", messageObject);
-                        data.put("distance", distanceObject);
-
-                        notifyListeners("onDistanceChanged", data);
+                            notifyListeners("onFound", data);
+                        }
                     }
-                }
 
-                /**
-                 * Called when messages are found.
-                 *
-                 * This method is called the first time the message is seen nearby.
-                 *
-                 * After a message has been lost (see onLost(Message)), it's eligible
-                 * for onFound(Message) again.
-                 */
-                @Override
-                public void onFound(final Message message) {
-                    Log.i(getLogTag(),
-                            String.format(
-                                    "onFound(message=%s, type=%s, content=%s)",
-                                    message, message.getType(), new String(message.getContent())));
-                    /*
-                    Toast.makeText(getContext(),
-                            String.format(
-                                    "onFound(message=%s, type=%s, content=%s)",
-                                    message, message.getType(), new String(message.getContent())),
-                            Toast.LENGTH_SHORT).show();
-                    */
-                    {
-                        JSObject messageObject = new JSObject();
-                        // Returns the type that describes the content of the message.
-                        messageObject.put("type", message.getType());
-                        // Returns the raw bytes content of the message.
-                        messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
-                        // Returns the non-empty string for a public namespace or empty for the private one.
-                        messageObject.put("namespace", message.getNamespace());
+                    /**
+                     * Called when a message is no longer detectable nearby.
+                     * <p>
+                     * Note: This callback currently works best for BLE beacon messages.
+                     * For other messages, it may not be called in a timely fashion, or at all.
+                     * <p>
+                     * This method will not be called repeatedly (unless the message is
+                     * found again between lost calls).
+                     */
+                    @Override
+                    public void onLost(final Message message) {
+                        Log.i(getLogTag(),
+                                String.format(
+                                        "onLost(message=%s, type=%s, content=%s)",
+                                        message, message.getType(), new String(message.getContent())));
 
-                        JSObject data = new JSObject();
-                        data.put("message", messageObject);
+//                        Toast.makeText(getContext(),
+//                                String.format(
+//                                        "onLost(message=%s, type=%s, content=%s)",
+//                                        message, message.getType(), new String(message.getContent())),
+//                                Toast.LENGTH_SHORT).show();
 
-                        notifyListeners("onFound", data);
+                        {
+                            JSObject messageObject = new JSObject();
+                            // Returns the type that describes the content of the message.
+                            messageObject.put("type", message.getType());
+                            // Returns the raw bytes content of the message.
+                            messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
+                            // Returns the non-empty string for a public namespace or empty for the private one.
+                            messageObject.put("namespace", message.getNamespace());
+
+                            JSObject data = new JSObject();
+                            data.put("message", messageObject);
+
+                            notifyListeners("onLost", data);
+                        }
                     }
-                }
+                };
+            }
+            ;
 
-                /**
-                 * Called when a message is no longer detectable nearby.
-                 *
-                 * Note: This callback currently works best for BLE beacon messages.
-                 * For other messages, it may not be called in a timely fashion, or at all.
-                 *
-                 * This method will not be called repeatedly (unless the message is
-                 * found again between lost calls).
-                 */
-                @Override
-                public void onLost(final Message message) {
-                    Log.i(getLogTag(),
-                            String.format(
-                                    "onLost(message=%s, type=%s, content=%s)",
-                                    message, message.getType(), new String(message.getContent())));
-                    /*
-                    Toast.makeText(getContext(),
-                            String.format(
-                                    "onLost(message=%s, type=%s, content=%s)",
-                                    message, message.getType(), new String(message.getContent())),
-                            Toast.LENGTH_SHORT).show();
-                    */
-                    {
-                        JSObject messageObject = new JSObject();
-                        // Returns the type that describes the content of the message.
-                        messageObject.put("type", message.getType());
-                        // Returns the raw bytes content of the message.
-                        messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
-                        // Returns the non-empty string for a public namespace or empty for the private one.
-                        messageObject.put("namespace", message.getNamespace());
-
-                        JSObject data = new JSObject();
-                        data.put("message", messageObject);
-
-                        notifyListeners("onLost", data);
-                    }
-                }
-            };
+            call.success();
         } catch (Exception e) {
             call.error(e.getLocalizedMessage(), e);
         }
@@ -299,20 +299,12 @@ public class GoogleNearbyMessages extends Plugin {
     // https://developers.google.com/nearby/messages/android/pub-sub#publish_a_message
     public void publish(PluginCall call) {
         if (mMessagesClient == null) {
-            call.reject("Nearby Messages not ready");
+            call.reject("Nearby Messages API not initialized");
             return;
         }
 
-        if (mActiveMessage != null) {
-            doUnpublish();
-
-            mActiveMessage = null;
-        }
-
-        isPublishing = false;
-
         try {
-            //Log.i(getLogTag(), "Publishing.");
+            Log.i(getLogTag(), "Publishing.");
 
             Message message = null;
             Strategy strategy = null;
@@ -384,6 +376,9 @@ public class GoogleNearbyMessages extends Plugin {
                 }
             }
 
+            // Create UUID to identify this message.
+            UUID messageUUID = UUID.randomUUID();
+
             // Builder for instances of PublishOptions.
             // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/PublishOptions.Builder
             PublishOptions.Builder options = new PublishOptions.Builder()
@@ -407,12 +402,15 @@ public class GoogleNearbyMessages extends Plugin {
                                 public void onExpired() {
                                     super.onExpired();
 
-                                    Log.i(getLogTag(), "The published message is expired.");
-                                    Toast.makeText(getContext(), "The published message is expired.", Toast.LENGTH_SHORT).show();
+//                                    Log.i(getLogTag(), "The published message is expired.");
+//                                    Toast.makeText(getContext(), "The published message is expired.", Toast.LENGTH_SHORT).show();
 
-                                    isPublishing = false;
+                                    doUnpublish(messageUUID);
 
-                                    notifyListeners("onPublishExpired", null);
+                                    JSObject data = new JSObject();
+                                    data.put("uuid", messageUUID);
+
+                                    notifyListeners("onPublishExpired", data);
                                 }
                             }
                     );
@@ -422,58 +420,73 @@ public class GoogleNearbyMessages extends Plugin {
                 options.setStrategy(strategy);
             }
 
-            mPublishOptions = options.build();
-            mActiveMessage = message;
+            final MessageOptions messageOptions = new MessageOptions(message, options.build());
 
-            doPublish(call);
+            doPublish(message, options.build())
+                    .addOnSuccessListener(
+                            (Void) -> {
+                                Log.i(getLogTag(), "Publish Success.");
+
+//                                Toast.makeText(getContext(), "We are publishing", Toast.LENGTH_SHORT).show();
+
+                                mMessages.put(messageUUID, messageOptions);
+
+                                JSObject data = new JSObject();
+                                data.put("uuid", messageUUID);
+
+                                call.success(data);
+                            })
+                    .addOnFailureListener(
+                            (Exception e) -> {
+                                Log.e(getLogTag(), "Publish Failure.", e);
+
+//                                Toast.makeText(getContext(), "Unable to start publishing: " + e, Toast.LENGTH_SHORT).show();
+
+                                call.error(e.getLocalizedMessage(), e);
+                            });
         } catch (Exception e) {
             call.error(e.getLocalizedMessage(), e);
         }
     }
 
-    private void doPublish(PluginCall call) {
-        if (mMessagesClient != null) {
-            // Publishes a message so that it is visible to nearby devices.
-            mMessagesClient
-                    .publish(
-                            // A Message to publish for nearby devices to see
-                            mActiveMessage,
-                            // A PublishOptions object for this operation
-                            mPublishOptions
-                    )
-                    .addOnSuccessListener(
-                            (Void) -> {
-                                // Toast.makeText(getContext(), "We are publishing", Toast.LENGTH_SHORT).show();
-
-                                isPublishing = true;
-
-                                call.success();
-                            })
-                    .addOnFailureListener(
-                            (Exception e) -> {
-                                // Toast.makeText(getContext(), "Unable to start publishing: " + e, Toast.LENGTH_SHORT).show();
-
-                                isPublishing = false;
-
-                                call.error(e.getLocalizedMessage(), e);
-                            });
-        }
+    private Task<Void> doPublish(Message message, PublishOptions options) {
+        return
+                // Publishes a message so that it is visible to nearby devices.
+                mMessagesClient
+                        .publish(
+                                // A Message to publish for nearby devices to see
+                                message,
+                                // A PublishOptions object for this operation
+                                options
+                        );
     }
 
     @PluginMethod()
     // https://developers.google.com/nearby/messages/android/pub-sub#unpublish_a_message
     public void unpublish(PluginCall call) {
+        if (mMessagesClient == null) {
+            call.reject("Nearby Messages API not initialized");
+            return;
+        }
+
         try {
-            //Log.i(getLogTag(), "Unpublishing.");
+            Log.i(getLogTag(), "Unpublishing.");
 
-            if (mActiveMessage != null) {
-                doUnpublish();
-
-                mActiveMessage = null;
-                mPublishOptions = null;
+            String uuid = call.getString("uuid", null);
+            if (uuid == null || uuid.length() == 0) {
+                call.reject("Must provide message UUID");
+                return;
             }
 
-            isPublishing = false;
+            UUID messageUUID = UUID.fromString(uuid);
+
+            MessageOptions messageOptions = mMessages.get(messageUUID);
+            if (messageOptions == null) {
+                call.reject("Message UUID not found");
+                return;
+            }
+
+            doUnpublish(messageUUID);
 
             call.success();
         } catch (Exception e) {
@@ -481,12 +494,21 @@ public class GoogleNearbyMessages extends Plugin {
         }
     }
 
-    private void doUnpublish() {
+    private void doUnpublish(UUID messageUUID) {
+        MessageOptions messageOptions = mMessages.get(messageUUID);
+        if (messageOptions != null) {
+            doUnpublish(messageOptions.message);
+
+            mMessages.remove(messageUUID);
+        }
+    }
+
+    private void doUnpublish(Message message) {
         if (mMessagesClient != null) {
             // Cancels an existing published message.
             mMessagesClient.unpublish(
                     // A Message that is currently published
-                    mActiveMessage
+                    message
             );
         }
     }
@@ -495,12 +517,12 @@ public class GoogleNearbyMessages extends Plugin {
     // https://developers.google.com/nearby/messages/android/pub-sub#subscribe_to_messages
     public void subscribe(PluginCall call) {
         if (mMessagesClient == null) {
-            call.reject("Nearby Messages not ready");
+            call.reject("Nearby Messages API not initialized");
             return;
         }
 
         try {
-            //Log.i(getLogTag(), "Subscribing.");
+            Log.i(getLogTag(), "Subscribing.");
 
             Strategy strategy = null;
             MessageFilter filter = null;
@@ -647,8 +669,8 @@ public class GoogleNearbyMessages extends Plugin {
                                 public void onExpired() {
                                     super.onExpired();
 
-                                    Log.i(getLogTag(), "The subscription is expired.");
-                                    Toast.makeText(getContext(), "The subscription is expired.", Toast.LENGTH_SHORT).show();
+//                                    Log.i(getLogTag(), "The subscription is expired.");
+//                                    Toast.makeText(getContext(), "The subscription is expired.", Toast.LENGTH_SHORT).show();
 
                                     isSubscribing = false;
 
@@ -669,25 +691,12 @@ public class GoogleNearbyMessages extends Plugin {
 
             mSubscribeOptions = options.build();
 
-            doSubscribe(call);
-        } catch (Exception e) {
-            call.error(e.getLocalizedMessage(), e);
-        }
-    }
-
-    private void doSubscribe(PluginCall call) {
-        if (mMessagesClient != null) {
-            // Subscribes for published messages from nearby devices.
-            mMessagesClient
-                    .subscribe(
-                            // A MessageListener implementation to get callbacks of received messages
-                            mMessageListener,
-                            // A SubscribeOptions object for this operation
-                            mSubscribeOptions
-                    )
+            doSubscribe()
                     .addOnSuccessListener(
                             (Void) -> {
-                                // Toast.makeText(getContext(), "We are subscribed", Toast.LENGTH_SHORT).show();
+                                Log.i(getLogTag(), "Subscribe Success.");
+
+//                                Toast.makeText(getContext(), "We are subscribed", Toast.LENGTH_SHORT).show();
 
                                 isSubscribing = true;
 
@@ -695,28 +704,43 @@ public class GoogleNearbyMessages extends Plugin {
                             })
                     .addOnFailureListener(
                             (Exception e) -> {
-                                // Toast.makeText(getContext(), "Unable to start subscribing: " + e, Toast.LENGTH_SHORT).show();
+                                Log.e(getLogTag(), "Subscribe Failure.", e);
+
+//                                Toast.makeText(getContext(), "Unable to start subscribing: " + e, Toast.LENGTH_SHORT).show();
 
                                 isSubscribing = false;
 
                                 call.error(e.getLocalizedMessage(), e);
                             });
+        } catch (Exception e) {
+            call.error(e.getLocalizedMessage(), e);
         }
+    }
+
+    private Task<Void> doSubscribe() {
+        return
+                // Subscribes for published messages from nearby devices.
+                mMessagesClient
+                        .subscribe(
+                                // A MessageListener implementation to get callbacks of received messages
+                                mMessageListener,
+                                // A SubscribeOptions object for this operation
+                                mSubscribeOptions
+                        );
     }
 
     @PluginMethod()
     // https://developers.google.com/nearby/messages/android/pub-sub#unsubscribe
     public void unsubscribe(PluginCall call) {
+        if (mMessagesClient == null) {
+            call.reject("Nearby Messages API not initialized");
+            return;
+        }
+
         try {
-            //Log.i(getLogTag(), "Unsubscribing.");
+            Log.i(getLogTag(), "Unsubscribing.");
 
-            if (isSubscribing && mMessagesClient != null) {
-                doUnsubscribe();
-
-                mSubscribeOptions = null;
-            }
-
-            isSubscribing = false;
+            doUnsubscribe();
 
             call.success();
         } catch (Exception e) {
@@ -732,15 +756,22 @@ public class GoogleNearbyMessages extends Plugin {
                     mMessageListener
             );
         }
+
+        isSubscribing = false;
     }
 
     @PluginMethod()
     public void pause(PluginCall call) {
-        try {
-            //Log.i(getLogTag(), "Pausing.");
+        if (mMessagesClient == null) {
+            call.reject("Nearby Messages API not initialized");
+            return;
+        }
 
-            if (isPublishing) {
-                doUnpublish();
+        try {
+            Log.i(getLogTag(), "Pausing.");
+
+            for (MessageOptions messageOptions : mMessages.values()) {
+                doUnpublish(messageOptions.message);
             }
             if (isSubscribing) {
                 doUnsubscribe();
@@ -754,14 +785,39 @@ public class GoogleNearbyMessages extends Plugin {
 
     @PluginMethod()
     public void resume(PluginCall call) {
-        try {
-            //Log.i(getLogTag(), "Resuming.");
+        if (mMessagesClient == null) {
+            call.reject("Nearby Messages API not initialized");
+            return;
+        }
 
-            if (isPublishing) {
-                doPublish(call);
+        try {
+            Log.i(getLogTag(), "Resuming.");
+
+            for (MessageOptions messageOptions : mMessages.values()) {
+                doPublish(messageOptions.message, messageOptions.options)
+                        .addOnSuccessListener(
+                                (Void) -> {
+                                    Log.i(getLogTag(), "Publish Success.");
+                                })
+                        .addOnFailureListener(
+                                (Exception e) -> {
+                                    Log.e(getLogTag(), "Publish Failure.", e);
+                                });
             }
             if (isSubscribing) {
-                doSubscribe(call);
+                doSubscribe()
+                        .addOnSuccessListener(
+                                (Void) -> {
+                                    Log.i(getLogTag(), "Subscribe Success.");
+
+                                    isSubscribing = true;
+                                })
+                        .addOnFailureListener(
+                                (Exception e) -> {
+                                    Log.e(getLogTag(), "Subscribe Failure.", e);
+
+                                    isSubscribing = false;
+                                });
             }
 
             call.success();
@@ -772,20 +828,23 @@ public class GoogleNearbyMessages extends Plugin {
 
     @PluginMethod()
     public void status(PluginCall call) {
+        boolean isPublishing = (mMessages.size() > 0);
+
         Log.i(getLogTag(),
                 String.format(
                         "status(isPublishing=%s, isSubscribing=%s)",
                         isPublishing, isSubscribing));
-        /*
-        Toast.makeText(getContext(),
-                String.format(
-                        "status(isPublishing=%s, isSubscribing=%s)",
-                        isPublishing, isSubscribing),
-                Toast.LENGTH_SHORT).show();
-        */
+
+//        Toast.makeText(getContext(),
+//                String.format(
+//                        "status(isPublishing=%s, isSubscribing=%s)",
+//                        isPublishing, isSubscribing),
+//                Toast.LENGTH_SHORT).show();
+
         JSObject data = new JSObject();
         data.put("isPublishing", isPublishing);
         data.put("isSubscribing", isSubscribing);
+
         call.success(data);
     }
 }
