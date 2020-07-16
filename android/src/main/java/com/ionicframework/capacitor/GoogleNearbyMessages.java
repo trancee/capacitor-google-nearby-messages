@@ -817,7 +817,7 @@ public class GoogleNearbyMessages extends Plugin {
 //                                    Log.e(getLogTag(), "Publish Failure.", e);
                                 });
             }
-            if (isSubscribing) {
+            if (!isSubscribing) {
                 doSubscribe()
                         .addOnSuccessListener(
                                 (Void) -> {
