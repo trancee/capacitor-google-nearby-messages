@@ -1,4 +1,4 @@
-package com.ionicframework.capacitor;
+package com.getcapacitor.plugin;
 
 import android.Manifest;
 import android.os.Build;
