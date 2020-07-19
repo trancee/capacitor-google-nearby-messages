@@ -18,7 +18,6 @@ export declare class GoogleNearbyMessagesWeb extends WebPlugin implements Google
     pause(): Promise<void>;
     resume(): Promise<void>;
     status(): Promise<Status>;
-    requestPermission(): Promise<void>;
 }
 declare const GoogleNearbyMessages: GoogleNearbyMessagesWeb;
 export { GoogleNearbyMessages };

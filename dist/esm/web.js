@@ -86,12 +86,6 @@ export class GoogleNearbyMessagesWeb extends WebPlugin {
             throw new Error("Method not implemented.");
         });
     }
-    requestPermission() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log("requestPermission");
-            throw new Error("Method not implemented.");
-        });
-    }
 }
 const GoogleNearbyMessages = new GoogleNearbyMessagesWeb();
 export { GoogleNearbyMessages };

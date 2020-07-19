@@ -1,7 +1,6 @@
 package com.getcapacitor.plugin;
 
-import android.Manifest;
-import android.os.Build;
+import android.app.Activity;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -36,8 +35,6 @@ import java.util.Set;
 import java.util.UUID;
 
 interface Constants {
-    int REQUEST_CODE_PERMISSION = 2020;
-    String BLUETOOTH_PERMISSION = Manifest.permission.BLUETOOTH;
     String NOT_INITIALIZED = "Nearby Messages API not initialized";
     String PUBLISH_MESSAGE_CONTENT = "Must provide message with content";
     String PUBLISH_MESSAGE_TYPE = "Must provide message with type";
@@ -45,18 +42,7 @@ interface Constants {
     String MESSAGE_UUID_NOT_FOUND = "Message UUID not found";
 }
 
-@NativePlugin(
-        // Some Plugins will require you to request permissions.
-        // First declare your plugin permissions.
-        permissions = {
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-        }
-)
+@NativePlugin()
 public class GoogleNearbyMessages extends Plugin {
     private static class MessageOptions {
         Message message;
@@ -82,7 +68,10 @@ public class GoogleNearbyMessages extends Plugin {
 
             if (mMessagesClient == null) {
                 // Creates a new instance of MessagesClient.
-                mMessagesClient = Nearby.getMessagesClient(getContext(),
+                mMessagesClient = Nearby.getMessagesClient(
+                        // The given Activity will be used to automatically prompt for resolution of resolvable connection errors.
+                        (Activity) getContext(),
+
                         // Configuration parameters for the Messages API.
                         new MessagesOptions.Builder()
                                 // Sets which NearbyPermissions are requested for Nearby.
@@ -865,28 +854,6 @@ public class GoogleNearbyMessages extends Plugin {
             data.put("uuids", new JSArray(uuids));
 
             call.success(data);
-        } catch (Exception e) {
-            call.error(e.getLocalizedMessage(), e);
-        }
-    }
-
-    @PluginMethod()
-    public void requestPermission(PluginCall call) {
-        try {
-//            Log.i(getLogTag(), "Requesting Permission.");
-
-            if (!hasPermission(Constants.BLUETOOTH_PERMISSION)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    bridge.getActivity().requestPermissions(
-                            new String[]{
-                                    Constants.BLUETOOTH_PERMISSION
-                            },
-                            Constants.REQUEST_CODE_PERMISSION
-                    );
-                }
-
-                call.success();
-            }
         } catch (Exception e) {
             call.error(e.getLocalizedMessage(), e);
         }
