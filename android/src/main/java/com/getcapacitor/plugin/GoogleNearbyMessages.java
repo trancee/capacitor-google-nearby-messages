@@ -1,6 +1,8 @@
 package com.getcapacitor.plugin;
 
-import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -12,6 +14,8 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.BleSignal;
 import com.google.android.gms.nearby.messages.Distance;
@@ -35,6 +39,9 @@ import java.util.Set;
 import java.util.UUID;
 
 interface Constants {
+    int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+    String UNSUPPORTED = "Google Play Services are not available on this device";
     String NOT_INITIALIZED = "Nearby Messages API not initialized";
     String PUBLISH_MESSAGE_CONTENT = "Must provide message with content";
     String PUBLISH_MESSAGE_TYPE = "Must provide message with type";
@@ -61,16 +68,73 @@ public class GoogleNearbyMessages extends Plugin {
     private boolean isSubscribing = false;
     private SubscribeOptions mSubscribeOptions;
 
+    private boolean isGooglePlayServicesAvailable() {
+        GoogleApiAvailability googleApi = GoogleApiAvailability.getInstance();
+
+        // Verifies that Google Play services is installed and enabled on this device,
+        // and that the version installed on this device is no older than the one
+        // required by this client.
+        int availability = googleApi.isGooglePlayServicesAvailable(getContext());
+
+        boolean result = availability == ConnectionResult.SUCCESS;
+
+        if (!result &&
+                // Determines whether an error can be resolved via user action.
+                googleApi.isUserResolvableError(availability)
+        ) {
+            // Returns a dialog to address the provided errorCode.
+            googleApi.getErrorDialog(
+                    getActivity(),
+                    availability,
+                    Constants.PLAY_SERVICES_RESOLUTION_REQUEST
+            ).show();
+        }
+
+        return result;
+    }
+
+    private MessagesClient getMessagesClient() {
+        return mMessagesClient;
+    }
+
+    private static void restartActivity(Context context) {
+        Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+        context.startActivity(Intent.makeRestartActivityTask(intent.getComponent()));
+
+        Runtime.getRuntime().exit(0);
+    }
+
     @PluginMethod()
     public void initialize(PluginCall call) {
         try {
 //            Log.i(getLogTag(), "Initializing.");
 
+            if (!isGooglePlayServicesAvailable()) {
+                call.reject(Constants.UNSUPPORTED);
+                return;
+            }
+
             if (mMessagesClient == null) {
+                /**
+                 * Newer GoogleApi-based API calls will automatically display either a dialog
+                 * (if the client is instantiated with an Activity) or system tray notification
+                 * (if the client is instantiated with a Context) that the user can tap to
+                 * start the permissions resolution intent.
+                 *
+                 * Calls will be enqueued and retried once the permission is granted.
+                 * https://developers.google.com/android/guides/permissions
+                 */
+
+                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                boolean hasPermissionGranted = sharedPref.getBoolean("permissionGranted", false);
+
                 // Creates a new instance of MessagesClient.
                 mMessagesClient = Nearby.getMessagesClient(
-                        // The given Activity will be used to automatically prompt for resolution of resolvable connection errors.
-                        (Activity) getContext(),
+                        hasPermissionGranted ?
+                                // Resolvable connections errors will create a system notification that the user can tap in order to resolve the error.
+                                getContext() :
+                                // The given Activity will be used to automatically prompt for resolution of resolvable connection errors.
+                                getActivity(),
 
                         // Configuration parameters for the Messages API.
                         new MessagesOptions.Builder()
@@ -102,10 +166,21 @@ public class GoogleNearbyMessages extends Plugin {
 //                                                permissionGranted),
 //                                        Toast.LENGTH_SHORT).show();
 
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putBoolean("permissionGranted", permissionGranted);
+                                editor.commit();
+
                                 JSObject data = new JSObject();
                                 data.put("permissionGranted", permissionGranted);
 
                                 notifyListeners("onPermissionChanged", data);
+
+                                if (
+                                        permissionGranted && !hasPermissionGranted ||
+                                                !permissionGranted && hasPermissionGranted
+                                ) {
+                                    restartActivity(getContext());
+                                }
                             }
                         }
                 );
@@ -453,7 +528,7 @@ public class GoogleNearbyMessages extends Plugin {
     private Task<Void> doPublish(Message message, PublishOptions options) {
         return
                 // Publishes a message so that it is visible to nearby devices.
-                mMessagesClient
+                getMessagesClient()
                         .publish(
                                 // A Message to publish for nearby devices to see
                                 message,
@@ -510,10 +585,11 @@ public class GoogleNearbyMessages extends Plugin {
     private void doUnpublish(Message message) {
         if (mMessagesClient != null) {
             // Cancels an existing published message.
-            mMessagesClient.unpublish(
-                    // A Message that is currently published
-                    message
-            );
+            getMessagesClient()
+                    .unpublish(
+                            // A Message that is currently published
+                            message
+                    );
         }
     }
 
@@ -724,7 +800,7 @@ public class GoogleNearbyMessages extends Plugin {
     private Task<Void> doSubscribe() {
         return
                 // Subscribes for published messages from nearby devices.
-                mMessagesClient
+                getMessagesClient()
                         .subscribe(
                                 // A MessageListener implementation to get callbacks of received messages
                                 mMessageListener,
@@ -754,10 +830,11 @@ public class GoogleNearbyMessages extends Plugin {
 
     private void doUnsubscribe() {
         // Cancels an existing subscription.
-        mMessagesClient.unsubscribe(
-                // A MessageListener implementation that is currently subscribed
-                mMessageListener
-        );
+        getMessagesClient()
+                .unsubscribe(
+                        // A MessageListener implementation that is currently subscribed
+                        mMessageListener
+                );
 
         isSubscribing = false;
     }
