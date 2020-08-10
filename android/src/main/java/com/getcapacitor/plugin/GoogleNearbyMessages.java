@@ -1,5 +1,6 @@
 package com.getcapacitor.plugin;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -49,7 +50,7 @@ interface Constants {
     String MESSAGE_UUID_NOT_FOUND = "Message UUID not found";
 }
 
-@NativePlugin()
+@NativePlugin(requestCodes = {65537})
 public class GoogleNearbyMessages extends Plugin {
     private static class MessageOptions {
         Message message;
@@ -67,6 +68,32 @@ public class GoogleNearbyMessages extends Plugin {
 
     private boolean isSubscribing = false;
     private SubscribeOptions mSubscribeOptions;
+
+    private boolean restartActivity = false;
+
+    @Override
+    protected void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 65537) {
+            boolean permissionGranted = resultCode == Activity.RESULT_OK;
+
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+            boolean hasPermissionGranted = sharedPref.getBoolean("permissionGranted", false);
+
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean("permissionGranted", permissionGranted);
+            editor.commit();
+
+            if (restartActivity) {
+                if (permissionGranted && !hasPermissionGranted ||
+                        !permissionGranted && hasPermissionGranted
+                ) {
+                    restartActivity(getActivity());
+                }
+            }
+        } else {
+            super.handleOnActivityResult(requestCode, resultCode, data);
+        }
+    }
 
     private boolean isGooglePlayServicesAvailable() {
         GoogleApiAvailability googleApi = GoogleApiAvailability.getInstance();
@@ -114,6 +141,8 @@ public class GoogleNearbyMessages extends Plugin {
                 return;
             }
 
+            restartActivity = call.getBoolean("restartActivity", false);
+
             if (mMessagesClient == null) {
                 /**
                  * Newer GoogleApi-based API calls will automatically display either a dialog
@@ -128,23 +157,36 @@ public class GoogleNearbyMessages extends Plugin {
                 SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                 boolean hasPermissionGranted = sharedPref.getBoolean("permissionGranted", false);
 
-                // Creates a new instance of MessagesClient.
-                mMessagesClient = Nearby.getMessagesClient(
-                        hasPermissionGranted ?
-                                // Resolvable connections errors will create a system notification that the user can tap in order to resolve the error.
-                                getContext() :
-                                // The given Activity will be used to automatically prompt for resolution of resolvable connection errors.
-                                getActivity(),
+                if (hasPermissionGranted) {
+                    mMessagesClient = Nearby.getMessagesClient(
+                            // Resolvable connections errors will create a system notification that the user can tap in order to resolve the error.
+                            getContext(),
 
-                        // Configuration parameters for the Messages API.
-                        new MessagesOptions.Builder()
-                                // Sets which NearbyPermissions are requested for Nearby.
-                                .setPermissions(
-                                        // Determines the scope of permissions Nearby will ask for at connection time.
-                                        NearbyPermissions.DEFAULT
-                                )
-                                .build()
-                );
+                            // Configuration parameters for the Messages API.
+                            new MessagesOptions.Builder()
+                                    // Sets which NearbyPermissions are requested for Nearby.
+                                    .setPermissions(
+                                            // Determines the scope of permissions Nearby will ask for at connection time.
+                                            NearbyPermissions.DEFAULT
+                                    )
+                                    .build()
+                    );
+                } else {
+                    // Creates a new instance of MessagesClient.
+                    mMessagesClient = Nearby.getMessagesClient(
+                            // The given Activity will be used to automatically prompt for resolution of resolvable connection errors.
+                            getActivity(),
+
+                            // Configuration parameters for the Messages API.
+                            new MessagesOptions.Builder()
+                                    // Sets which NearbyPermissions are requested for Nearby.
+                                    .setPermissions(
+                                            // Determines the scope of permissions Nearby will ask for at connection time.
+                                            NearbyPermissions.DEFAULT
+                                    )
+                                    .build()
+                    );
+                }
 
                 // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
                 mMessagesClient.registerStatusCallback(
@@ -174,13 +216,6 @@ public class GoogleNearbyMessages extends Plugin {
                                 data.put("permissionGranted", permissionGranted);
 
                                 notifyListeners("onPermissionChanged", data);
-
-                                if (
-                                        permissionGranted && !hasPermissionGranted ||
-                                                !permissionGranted && hasPermissionGranted
-                                ) {
-                                    restartActivity(getContext());
-                                }
                             }
                         }
                 );

@@ -15,9 +15,9 @@ export class GoogleNearbyMessagesWeb extends WebPlugin {
             platforms: ['web']
         });
     }
-    initialize() {
+    initialize(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("initialize");
+            console.log("initialize", options);
             throw new Error("Method not implemented.");
         });
     }

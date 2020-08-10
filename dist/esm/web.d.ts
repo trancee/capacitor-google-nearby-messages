@@ -3,7 +3,10 @@ import { GoogleNearbyMessagesPlugin } from './definitions';
 import { Message, PublishOptions, SubscribeOptions, UUID, Status } from './definitions';
 export declare class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMessagesPlugin {
     constructor();
-    initialize(): Promise<void>;
+    initialize(options: {
+        apiKey?: string;
+        restartActivity?: boolean;
+    }): Promise<void>;
     publish(options: {
         message: Message;
         options?: PublishOptions;

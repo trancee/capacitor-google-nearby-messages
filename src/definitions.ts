@@ -185,7 +185,12 @@ export type Status = {
 // API which allows your app to publish simple messages and subscribe to receive those messages from nearby devices.
 export interface GoogleNearbyMessagesPlugin {
   // Initializes the Nearby Messages API.
-  initialize(): Promise<void>;
+  initialize(options: {
+    // The API key of the app, required to use the Messages service (iOS).
+    apiKey?: string,
+    // Restart the activity after granting permission to re-initialize with background context (Android).
+    restartActivity?: boolean,
+  }): Promise<void>;
 
   // Publishes a message so that it is visible to nearby devices, using the default options from DEFAULT.
   publish(options: {

@@ -74,7 +74,10 @@ export declare type Status = {
     uuids: string[];
 };
 export interface GoogleNearbyMessagesPlugin {
-    initialize(): Promise<void>;
+    initialize(options: {
+        apiKey?: string;
+        restartActivity?: boolean;
+    }): Promise<void>;
     publish(options: {
         message: Message;
         options?: PublishOptions;
