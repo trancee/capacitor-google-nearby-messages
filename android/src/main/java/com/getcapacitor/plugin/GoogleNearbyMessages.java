@@ -67,6 +67,8 @@ public class GoogleNearbyMessages extends Plugin {
     private MessageListener mMessageListener;
     private Map<UUID, MessageOptions> mMessages = new HashMap<>();
 
+    private StatusCallback mStatusCallback;
+
     private boolean isSubscribing = false;
     private SubscribeOptions mSubscribeOptions;
 
@@ -132,10 +134,6 @@ public class GoogleNearbyMessages extends Plugin {
         return result;
     }
 
-    private MessagesClient getMessagesClient() {
-        return mMessagesClient;
-    }
-
     @PluginMethod()
     public void initialize(PluginCall call) {
         try {
@@ -193,19 +191,16 @@ public class GoogleNearbyMessages extends Plugin {
                     );
                 }
 
-                // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
-                mMessagesClient.registerStatusCallback(
-                        // Callbacks for global status changes that affect a client of Nearby Messages.
-                        new StatusCallback() {
-                            @Override
-                            // Called when permission is granted or revoked for this app to use Nearby.
-                            public void onPermissionChanged(boolean permissionGranted) {
-                                super.onPermissionChanged(permissionGranted);
+                mStatusCallback = new StatusCallback() {
+                    @Override
+                    // Called when permission is granted or revoked for this app to use Nearby.
+                    public void onPermissionChanged(boolean permissionGranted) {
+                        super.onPermissionChanged(permissionGranted);
 
-                                Log.i(getLogTag(),
-                                        String.format(
-                                                "onPermissionChanged(permissionGranted=%s)",
-                                                permissionGranted));
+                        Log.i(getLogTag(),
+                                String.format(
+                                        "onPermissionChanged(permissionGranted=%s)",
+                                        permissionGranted));
 
 //                                Toast.makeText(getContext(),
 //                                        String.format(
@@ -213,35 +208,40 @@ public class GoogleNearbyMessages extends Plugin {
 //                                                permissionGranted),
 //                                        Toast.LENGTH_SHORT).show();
 
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putBoolean("permissionGranted", permissionGranted);
-                                editor.commit();
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putBoolean("permissionGranted", permissionGranted);
+                        editor.commit();
 
-                                {
-                                    JSObject data = new JSObject();
-                                    data.put("permissionGranted", permissionGranted);
+                        {
+                            JSObject data = new JSObject();
+                            data.put("permissionGranted", permissionGranted);
 
-                                    notifyListeners("onPermissionChanged", data);
-                                }
-
-                                PluginCall savedCall = getSavedCall();
-                                if (savedCall != null) {
-                                    if (permissionGranted) {
-                                        boolean restartApp = (permissionGranted && !hasPermissionGranted ||
-                                                !permissionGranted && hasPermissionGranted);
-
-                                        JSObject data = new JSObject();
-                                        data.put("restartApp", restartApp);
-
-                                        savedCall.success(data);
-                                    } else {
-                                        savedCall.reject(Constants.PERMISSION_DENIED);
-                                    }
-
-                                    freeSavedCall();
-                                }
-                            }
+                            notifyListeners("onPermissionChanged", data);
                         }
+
+                        PluginCall savedCall = getSavedCall();
+                        if (savedCall != null) {
+                            if (permissionGranted) {
+                                boolean restartApp = (permissionGranted && !hasPermissionGranted ||
+                                        !permissionGranted && hasPermissionGranted);
+
+                                JSObject data = new JSObject();
+                                data.put("restartApp", restartApp);
+
+                                savedCall.success(data);
+                            } else {
+                                savedCall.reject(Constants.PERMISSION_DENIED);
+                            }
+
+                            freeSavedCall();
+                        }
+                    }
+                };
+
+                // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
+                mMessagesClient.registerStatusCallback(
+                        // Callbacks for global status changes that affect a client of Nearby Messages.
+                        mStatusCallback
                 );
             }
 
@@ -431,6 +431,31 @@ public class GoogleNearbyMessages extends Plugin {
     }
 
     @PluginMethod()
+    public void reset(PluginCall call) {
+        if (mMessagesClient != null) {
+            {
+                doUnsubscribe();
+
+                notifyListeners("onSubscribeExpired", null);
+            }
+
+            for (UUID messageUUID : mMessages.keySet()) {
+                doUnpublish(messageUUID);
+
+                JSObject data = new JSObject();
+                data.put("uuid", messageUUID);
+
+                notifyListeners("onPublishExpired", data);
+            }
+
+            mMessagesClient.unregisterStatusCallback(mStatusCallback);
+
+            mStatusCallback = null;
+            mMessagesClient = null;
+        }
+    }
+
+    @PluginMethod()
     // https://developers.google.com/nearby/messages/android/pub-sub#publish_a_message
     public void publish(PluginCall call) {
         if (mMessagesClient == null) {
@@ -587,7 +612,7 @@ public class GoogleNearbyMessages extends Plugin {
     private Task<Void> doPublish(Message message, PublishOptions options) {
         return
                 // Publishes a message so that it is visible to nearby devices.
-                getMessagesClient()
+                mMessagesClient
                         .publish(
                                 // A Message to publish for nearby devices to see
                                 message,
@@ -644,7 +669,7 @@ public class GoogleNearbyMessages extends Plugin {
     private void doUnpublish(Message message) {
         if (mMessagesClient != null) {
             // Cancels an existing published message.
-            getMessagesClient()
+            mMessagesClient
                     .unpublish(
                             // A Message that is currently published
                             message
@@ -859,7 +884,7 @@ public class GoogleNearbyMessages extends Plugin {
     private Task<Void> doSubscribe() {
         return
                 // Subscribes for published messages from nearby devices.
-                getMessagesClient()
+                mMessagesClient
                         .subscribe(
                                 // A MessageListener implementation to get callbacks of received messages
                                 mMessageListener,
@@ -888,12 +913,14 @@ public class GoogleNearbyMessages extends Plugin {
     }
 
     private void doUnsubscribe() {
-        // Cancels an existing subscription.
-        getMessagesClient()
-                .unsubscribe(
-                        // A MessageListener implementation that is currently subscribed
-                        mMessageListener
-                );
+        if (mMessagesClient != null) {
+            // Cancels an existing subscription.
+            mMessagesClient
+                    .unsubscribe(
+                            // A MessageListener implementation that is currently subscribed
+                            mMessageListener
+                    );
+        }
 
         isSubscribing = false;
     }

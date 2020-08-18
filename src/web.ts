@@ -27,6 +27,10 @@ export class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMe
     console.log("initialize", options);
     throw new Error("Method not implemented.");
   }
+  async reset(): Promise<void> {
+    console.log("reset");
+    throw new Error("Method not implemented.");
+  }
 
   // Publishes a message so that it is visible to nearby devices, using the default options from DEFAULT.
   async publish(options: {

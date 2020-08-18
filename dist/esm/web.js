@@ -21,6 +21,12 @@ export class GoogleNearbyMessagesWeb extends WebPlugin {
             throw new Error("Method not implemented.");
         });
     }
+    reset() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("reset");
+            throw new Error("Method not implemented.");
+        });
+    }
     // Publishes a message so that it is visible to nearby devices, using the default options from DEFAULT.
     publish(options) {
         return __awaiter(this, void 0, void 0, function* () {

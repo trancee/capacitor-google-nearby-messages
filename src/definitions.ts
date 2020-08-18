@@ -193,6 +193,9 @@ export interface GoogleNearbyMessagesPlugin {
     // The API key of the app, required to use the Messages service (iOS).
     apiKey?: string,
   }): Promise<InitializeResult>;
+  // Resets the Nearby Messages API.
+  // This will unsubscribe and unpublish all existing messages and emits onSubscribeExpired and onPublishExpired events.
+  reset(): Promise<void>;
 
   // Publishes a message so that it is visible to nearby devices, using the default options from DEFAULT.
   publish(options: {

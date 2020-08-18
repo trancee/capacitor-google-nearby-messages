@@ -80,6 +80,7 @@ export interface GoogleNearbyMessagesPlugin {
     initialize(options: {
         apiKey?: string;
     }): Promise<InitializeResult>;
+    reset(): Promise<void>;
     publish(options: {
         message: Message;
         options?: PublishOptions;
