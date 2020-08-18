@@ -44,6 +44,7 @@ interface Constants {
 
     String UNSUPPORTED = "Google Play Services are not available on this device";
     String NOT_INITIALIZED = "Nearby Messages API not initialized";
+    String PERMISSION_DENIED = "Nearby permissions not granted";
     String PUBLISH_MESSAGE_CONTENT = "Must provide message with content";
     String PUBLISH_MESSAGE_TYPE = "Must provide message with type";
     String PUBLISH_MESSAGE = "Must provide message";
@@ -69,10 +70,8 @@ public class GoogleNearbyMessages extends Plugin {
     private boolean isSubscribing = false;
     private SubscribeOptions mSubscribeOptions;
 
-    private boolean restartActivity = false;
-
     @Override
-    protected void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void handleOnActivityResult(int requestCode, int resultCode, Intent intentData) {
         if (requestCode == 65537) {
             boolean permissionGranted = resultCode == Activity.RESULT_OK;
 
@@ -83,15 +82,26 @@ public class GoogleNearbyMessages extends Plugin {
             editor.putBoolean("permissionGranted", permissionGranted);
             editor.commit();
 
-            if (restartActivity) {
-                if (permissionGranted && !hasPermissionGranted ||
-                        !permissionGranted && hasPermissionGranted
-                ) {
-                    restartActivity(getActivity());
+            {
+                JSObject data = new JSObject();
+                data.put("permissionGranted", permissionGranted);
+
+                notifyListeners("onPermissionChanged", data);
+            }
+
+            PluginCall savedCall = getSavedCall();
+            if (savedCall != null) {
+                if (permissionGranted) {
+                    JSObject data = new JSObject();
+                    data.put("restartApp", true);
+
+                    savedCall.success(data);
+                } else {
+                    savedCall.reject(Constants.PERMISSION_DENIED);
                 }
             }
         } else {
-            super.handleOnActivityResult(requestCode, resultCode, data);
+            super.handleOnActivityResult(requestCode, resultCode, intentData);
         }
     }
 
@@ -124,13 +134,6 @@ public class GoogleNearbyMessages extends Plugin {
         return mMessagesClient;
     }
 
-    private static void restartActivity(Context context) {
-        Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
-        context.startActivity(Intent.makeRestartActivityTask(intent.getComponent()));
-
-        Runtime.getRuntime().exit(0);
-    }
-
     @PluginMethod()
     public void initialize(PluginCall call) {
         try {
@@ -141,7 +144,7 @@ public class GoogleNearbyMessages extends Plugin {
                 return;
             }
 
-            restartActivity = call.getBoolean("restartActivity", false);
+            saveCall(call);
 
             if (mMessagesClient == null) {
                 /**
@@ -212,10 +215,24 @@ public class GoogleNearbyMessages extends Plugin {
                                 editor.putBoolean("permissionGranted", permissionGranted);
                                 editor.commit();
 
-                                JSObject data = new JSObject();
-                                data.put("permissionGranted", permissionGranted);
+                                {
+                                    JSObject data = new JSObject();
+                                    data.put("permissionGranted", permissionGranted);
 
-                                notifyListeners("onPermissionChanged", data);
+                                    notifyListeners("onPermissionChanged", data);
+                                }
+
+                                if (permissionGranted) {
+                                    boolean restartApp = (permissionGranted && !hasPermissionGranted ||
+                                            !permissionGranted && hasPermissionGranted);
+
+                                    JSObject data = new JSObject();
+                                    data.put("restartApp", restartApp);
+
+                                    call.success(data);
+                                } else {
+                                    call.reject(Constants.PERMISSION_DENIED);
+                                }
                             }
                         }
                 );
@@ -400,7 +417,7 @@ public class GoogleNearbyMessages extends Plugin {
                 };
             }
 
-            call.success();
+//            call.success();
         } catch (Exception e) {
             call.error(e.getLocalizedMessage(), e);
         }
