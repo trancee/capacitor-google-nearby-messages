@@ -99,6 +99,8 @@ public class GoogleNearbyMessages extends Plugin {
                 } else {
                     savedCall.reject(Constants.PERMISSION_DENIED);
                 }
+
+                freeSavedCall();
             }
         } else {
             super.handleOnActivityResult(requestCode, resultCode, intentData);
@@ -222,16 +224,21 @@ public class GoogleNearbyMessages extends Plugin {
                                     notifyListeners("onPermissionChanged", data);
                                 }
 
-                                if (permissionGranted) {
-                                    boolean restartApp = (permissionGranted && !hasPermissionGranted ||
-                                            !permissionGranted && hasPermissionGranted);
+                                PluginCall savedCall = getSavedCall();
+                                if (savedCall != null) {
+                                    if (permissionGranted) {
+                                        boolean restartApp = (permissionGranted && !hasPermissionGranted ||
+                                                !permissionGranted && hasPermissionGranted);
 
-                                    JSObject data = new JSObject();
-                                    data.put("restartApp", restartApp);
+                                        JSObject data = new JSObject();
+                                        data.put("restartApp", restartApp);
 
-                                    call.success(data);
-                                } else {
-                                    call.reject(Constants.PERMISSION_DENIED);
+                                        savedCall.success(data);
+                                    } else {
+                                        savedCall.reject(Constants.PERMISSION_DENIED);
+                                    }
+
+                                    freeSavedCall();
                                 }
                             }
                         }

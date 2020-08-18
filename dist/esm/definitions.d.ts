@@ -65,6 +65,9 @@ export interface SubscribeOptions {
     strategy?: Strategy;
     filter: MessageFilter;
 }
+export declare type InitializeResult = {
+    restartApp?: boolean;
+};
 export declare type UUID = {
     uuid: string;
 };
@@ -76,8 +79,7 @@ export declare type Status = {
 export interface GoogleNearbyMessagesPlugin {
     initialize(options: {
         apiKey?: string;
-        restartActivity?: boolean;
-    }): Promise<void>;
+    }): Promise<InitializeResult>;
     publish(options: {
         message: Message;
         options?: PublishOptions;

@@ -173,6 +173,10 @@ export interface StatusCallback {
 }
 */
 
+export type InitializeResult = {
+  // Restart the app after granting permission to re-initialize with background context (Android).
+  restartApp?: boolean;
+}
 export type UUID = {
   uuid: string;
 }
@@ -188,9 +192,7 @@ export interface GoogleNearbyMessagesPlugin {
   initialize(options: {
     // The API key of the app, required to use the Messages service (iOS).
     apiKey?: string,
-    // Restart the activity after granting permission to re-initialize with background context (Android).
-    restartActivity?: boolean,
-  }): Promise<void>;
+  }): Promise<InitializeResult>;
 
   // Publishes a message so that it is visible to nearby devices, using the default options from DEFAULT.
   publish(options: {

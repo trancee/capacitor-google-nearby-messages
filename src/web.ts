@@ -7,6 +7,7 @@ import {
   PublishOptions,
   SubscribeOptions,
   // UNUSED // StatusCallback,
+  InitializeResult,
   UUID,
   Status,
 } from './definitions';
@@ -22,9 +23,7 @@ export class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMe
   async initialize(options: {
     // The API key of the app, required to use the Messages service (iOS).
     apiKey?: string,
-    // Restart the activity after granting permission to re-initialize with background context (Android).
-    restartActivity?: boolean,
-  }): Promise<void> {
+  }): Promise<InitializeResult> {
     console.log("initialize", options);
     throw new Error("Method not implemented.");
   }
