@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -202,12 +201,6 @@ public class GoogleNearbyMessages extends Plugin {
                                         "onPermissionChanged(permissionGranted=%s)",
                                         permissionGranted));
 
-//                                Toast.makeText(getContext(),
-//                                        String.format(
-//                                                "onPermissionChanged(permissionGranted=%s)",
-//                                                permissionGranted),
-//                                        Toast.LENGTH_SHORT).show();
-
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putBoolean("permissionGranted", permissionGranted);
                         editor.commit();
@@ -243,188 +236,164 @@ public class GoogleNearbyMessages extends Plugin {
                         // Callbacks for global status changes that affect a client of Nearby Messages.
                         mStatusCallback
                 );
+
+                if (mMessageListener == null) {
+                    // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/MessageListener
+                    mMessageListener = new MessageListener() {
+                        // A listener for receiving subscribed messages. These callbacks will be delivered when messages are found or lost.
+
+                        /**
+                         * Called when the Bluetooth Low Energy (BLE) signal associated with a message changes.
+                         * <p>
+                         * This is currently only called for BLE beacon messages.
+                         * <p>
+                         * For example, this is called when we see the first BLE advertisement
+                         * frame associated with a message; or when we see subsequent frames with
+                         * significantly different received signal strength indicator (RSSI)
+                         * readings.
+                         * <p>
+                         * For more information, see the MessageListener Javadocs.
+                         */
+                        // https://developers.google.com/nearby/messages/android/advanced#rssi_and_distance_callbacks
+                        @Override
+                        public void onBleSignalChanged(final Message message, final BleSignal bleSignal) {
+                            Log.i(getLogTag(),
+                                    String.format(
+                                            "onBleSignalChanged(message=%s, bleSignal=%s)",
+                                            message, bleSignal));
+
+                            {
+                                JSObject messageObject = new JSObject();
+                                // Returns the type that describes the content of the message.
+                                messageObject.put("type", message.getType());
+                                // Returns the raw bytes content of the message.
+                                messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
+                                // Returns the non-empty string for a public namespace or empty for the private one.
+                                messageObject.put("namespace", message.getNamespace());
+
+                                JSObject bleSignalObject = new JSObject();
+                                // Returns the received signal strength indicator (RSSI) in dBm.
+                                bleSignalObject.put("rssi", bleSignal.getRssi());
+                                // Returns the transmission power level at 1 meter, in dBm.
+                                bleSignalObject.put("txPower", bleSignal.getTxPower());
+
+                                JSObject data = new JSObject();
+                                data.put("message", messageObject);
+                                data.put("bleSignal", bleSignalObject);
+
+                                notifyListeners("onBleSignalChanged", data);
+                            }
+                        }
+
+                        /**
+                         * Called when Nearby's estimate of the distance to a message changes.
+                         * <p>
+                         * This is currently only called for BLE beacon messages.
+                         * <p>
+                         * For example, this is called when we first gather enough information
+                         * to make a distance estimate; or when the message remains nearby,
+                         * but gets closer or further away.
+                         * <p>
+                         * For more information, see the MessageListener Javadocs.
+                         */
+                        // https://developers.google.com/nearby/messages/android/advanced#rssi_and_distance_callbacks
+                        @Override
+                        public void onDistanceChanged(final Message message, final Distance distance) {
+                            Log.i(getLogTag(),
+                                    String.format(
+                                            "onDistanceChanged(message=%s, distance=%s)",
+                                            message, distance));
+
+                            {
+                                JSObject messageObject = new JSObject();
+                                // Returns the type that describes the content of the message.
+                                messageObject.put("type", message.getType());
+                                // Returns the raw bytes content of the message.
+                                messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
+                                // Returns the non-empty string for a public namespace or empty for the private one.
+                                messageObject.put("namespace", message.getNamespace());
+
+                                JSObject distanceObject = new JSObject();
+                                // The accuracy of the distance estimate.
+                                distanceObject.put("accuracy", distance.getAccuracy());
+                                // The distance estimate, in meters.
+                                distanceObject.put("meters", distance.getMeters());
+
+                                JSObject data = new JSObject();
+                                data.put("message", messageObject);
+                                data.put("distance", distanceObject);
+
+                                notifyListeners("onDistanceChanged", data);
+                            }
+                        }
+
+                        /**
+                         * Called when messages are found.
+                         * <p>
+                         * This method is called the first time the message is seen nearby.
+                         * <p>
+                         * After a message has been lost (see onLost(Message)), it's eligible
+                         * for onFound(Message) again.
+                         */
+                        @Override
+                        public void onFound(final Message message) {
+                            Log.i(getLogTag(),
+                                    String.format(
+                                            "onFound(message=%s, type=%s, content=%s)",
+                                            message, message.getType(), new String(message.getContent())));
+
+                            {
+                                JSObject messageObject = new JSObject();
+                                // Returns the type that describes the content of the message.
+                                messageObject.put("type", message.getType());
+                                // Returns the raw bytes content of the message.
+                                messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
+                                // Returns the non-empty string for a public namespace or empty for the private one.
+                                messageObject.put("namespace", message.getNamespace());
+
+                                JSObject data = new JSObject();
+                                data.put("message", messageObject);
+
+                                notifyListeners("onFound", data);
+                            }
+                        }
+
+                        /**
+                         * Called when a message is no longer detectable nearby.
+                         * <p>
+                         * Note: This callback currently works best for BLE beacon messages.
+                         * For other messages, it may not be called in a timely fashion, or at all.
+                         * <p>
+                         * This method will not be called repeatedly (unless the message is
+                         * found again between lost calls).
+                         */
+                        @Override
+                        public void onLost(final Message message) {
+                            Log.i(getLogTag(),
+                                    String.format(
+                                            "onLost(message=%s, type=%s, content=%s)",
+                                            message, message.getType(), new String(message.getContent())));
+
+                            {
+                                JSObject messageObject = new JSObject();
+                                // Returns the type that describes the content of the message.
+                                messageObject.put("type", message.getType());
+                                // Returns the raw bytes content of the message.
+                                messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
+                                // Returns the non-empty string for a public namespace or empty for the private one.
+                                messageObject.put("namespace", message.getNamespace());
+
+                                JSObject data = new JSObject();
+                                data.put("message", messageObject);
+
+                                notifyListeners("onLost", data);
+                            }
+                        }
+                    };
+                }
+            } else {
+                call.success();
             }
-
-            if (mMessageListener == null) {
-                // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/MessageListener
-                mMessageListener = new MessageListener() {
-                    // A listener for receiving subscribed messages. These callbacks will be delivered when messages are found or lost.
-
-                    /**
-                     * Called when the Bluetooth Low Energy (BLE) signal associated with a message changes.
-                     * <p>
-                     * This is currently only called for BLE beacon messages.
-                     * <p>
-                     * For example, this is called when we see the first BLE advertisement
-                     * frame associated with a message; or when we see subsequent frames with
-                     * significantly different received signal strength indicator (RSSI)
-                     * readings.
-                     * <p>
-                     * For more information, see the MessageListener Javadocs.
-                     */
-                    // https://developers.google.com/nearby/messages/android/advanced#rssi_and_distance_callbacks
-                    @Override
-                    public void onBleSignalChanged(final Message message, final BleSignal bleSignal) {
-                        Log.i(getLogTag(),
-                                String.format(
-                                        "onBleSignalChanged(message=%s, bleSignal=%s)",
-                                        message, bleSignal));
-
-//                        Toast.makeText(getContext(),
-//                                String.format(
-//                                        "onBleSignalChanged(message=%s, bleSignal=%s)",
-//                                        message, bleSignal),
-//                                Toast.LENGTH_SHORT).show();
-
-                        {
-                            JSObject messageObject = new JSObject();
-                            // Returns the type that describes the content of the message.
-                            messageObject.put("type", message.getType());
-                            // Returns the raw bytes content of the message.
-                            messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
-                            // Returns the non-empty string for a public namespace or empty for the private one.
-                            messageObject.put("namespace", message.getNamespace());
-
-                            JSObject bleSignalObject = new JSObject();
-                            // Returns the received signal strength indicator (RSSI) in dBm.
-                            bleSignalObject.put("rssi", bleSignal.getRssi());
-                            // Returns the transmission power level at 1 meter, in dBm.
-                            bleSignalObject.put("txPower", bleSignal.getTxPower());
-
-                            JSObject data = new JSObject();
-                            data.put("message", messageObject);
-                            data.put("bleSignal", bleSignalObject);
-
-                            notifyListeners("onBleSignalChanged", data);
-                        }
-                    }
-
-                    /**
-                     * Called when Nearby's estimate of the distance to a message changes.
-                     * <p>
-                     * This is currently only called for BLE beacon messages.
-                     * <p>
-                     * For example, this is called when we first gather enough information
-                     * to make a distance estimate; or when the message remains nearby,
-                     * but gets closer or further away.
-                     * <p>
-                     * For more information, see the MessageListener Javadocs.
-                     */
-                    // https://developers.google.com/nearby/messages/android/advanced#rssi_and_distance_callbacks
-                    @Override
-                    public void onDistanceChanged(final Message message, final Distance distance) {
-                        Log.i(getLogTag(),
-                                String.format(
-                                        "onDistanceChanged(message=%s, distance=%s)",
-                                        message, distance));
-
-//                        Toast.makeText(getContext(),
-//                                String.format(
-//                                        "onDistanceChanged(message=%s, distance=%s)",
-//                                        message, distance),
-//                                Toast.LENGTH_SHORT).show();
-
-                        {
-                            JSObject messageObject = new JSObject();
-                            // Returns the type that describes the content of the message.
-                            messageObject.put("type", message.getType());
-                            // Returns the raw bytes content of the message.
-                            messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
-                            // Returns the non-empty string for a public namespace or empty for the private one.
-                            messageObject.put("namespace", message.getNamespace());
-
-                            JSObject distanceObject = new JSObject();
-                            // The accuracy of the distance estimate.
-                            distanceObject.put("accuracy", distance.getAccuracy());
-                            // The distance estimate, in meters.
-                            distanceObject.put("meters", distance.getMeters());
-
-                            JSObject data = new JSObject();
-                            data.put("message", messageObject);
-                            data.put("distance", distanceObject);
-
-                            notifyListeners("onDistanceChanged", data);
-                        }
-                    }
-
-                    /**
-                     * Called when messages are found.
-                     * <p>
-                     * This method is called the first time the message is seen nearby.
-                     * <p>
-                     * After a message has been lost (see onLost(Message)), it's eligible
-                     * for onFound(Message) again.
-                     */
-                    @Override
-                    public void onFound(final Message message) {
-                        Log.i(getLogTag(),
-                                String.format(
-                                        "onFound(message=%s, type=%s, content=%s)",
-                                        message, message.getType(), new String(message.getContent())));
-
-//                        Toast.makeText(getContext(),
-//                                String.format(
-//                                        "onFound(message=%s, type=%s, content=%s)",
-//                                        message, message.getType(), new String(message.getContent())),
-//                                Toast.LENGTH_SHORT).show();
-
-                        {
-                            JSObject messageObject = new JSObject();
-                            // Returns the type that describes the content of the message.
-                            messageObject.put("type", message.getType());
-                            // Returns the raw bytes content of the message.
-                            messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
-                            // Returns the non-empty string for a public namespace or empty for the private one.
-                            messageObject.put("namespace", message.getNamespace());
-
-                            JSObject data = new JSObject();
-                            data.put("message", messageObject);
-
-                            notifyListeners("onFound", data);
-                        }
-                    }
-
-                    /**
-                     * Called when a message is no longer detectable nearby.
-                     * <p>
-                     * Note: This callback currently works best for BLE beacon messages.
-                     * For other messages, it may not be called in a timely fashion, or at all.
-                     * <p>
-                     * This method will not be called repeatedly (unless the message is
-                     * found again between lost calls).
-                     */
-                    @Override
-                    public void onLost(final Message message) {
-                        Log.i(getLogTag(),
-                                String.format(
-                                        "onLost(message=%s, type=%s, content=%s)",
-                                        message, message.getType(), new String(message.getContent())));
-
-//                        Toast.makeText(getContext(),
-//                                String.format(
-//                                        "onLost(message=%s, type=%s, content=%s)",
-//                                        message, message.getType(), new String(message.getContent())),
-//                                Toast.LENGTH_SHORT).show();
-
-                        {
-                            JSObject messageObject = new JSObject();
-                            // Returns the type that describes the content of the message.
-                            messageObject.put("type", message.getType());
-                            // Returns the raw bytes content of the message.
-                            messageObject.put("content", Base64.encodeToString(message.getContent(), Base64.DEFAULT | Base64.NO_WRAP));
-                            // Returns the non-empty string for a public namespace or empty for the private one.
-                            messageObject.put("namespace", message.getNamespace());
-
-                            JSObject data = new JSObject();
-                            data.put("message", messageObject);
-
-                            notifyListeners("onLost", data);
-                        }
-                    }
-                };
-            }
-
-//            call.success();
         } catch (Exception e) {
             call.error(e.getLocalizedMessage(), e);
         }
@@ -563,7 +532,6 @@ public class GoogleNearbyMessages extends Plugin {
                                     super.onExpired();
 
 //                                    Log.i(getLogTag(), "The published message is expired.");
-//                                    Toast.makeText(getContext(), "The published message is expired.", Toast.LENGTH_SHORT).show();
 
                                     doUnpublish(messageUUID);
 
@@ -587,8 +555,6 @@ public class GoogleNearbyMessages extends Plugin {
                             (Void) -> {
 //                                Log.i(getLogTag(), "Publish Success.");
 
-//                                Toast.makeText(getContext(), "We are publishing", Toast.LENGTH_SHORT).show();
-
                                 mMessages.put(messageUUID, messageOptions);
 
                                 JSObject data = new JSObject();
@@ -599,8 +565,6 @@ public class GoogleNearbyMessages extends Plugin {
                     .addOnFailureListener(
                             (Exception e) -> {
 //                                Log.e(getLogTag(), "Publish Failure.", e);
-
-//                                Toast.makeText(getContext(), "Unable to start publishing: " + e, Toast.LENGTH_SHORT).show();
 
                                 call.error(e.getLocalizedMessage(), e);
                             });
@@ -834,7 +798,6 @@ public class GoogleNearbyMessages extends Plugin {
                                     super.onExpired();
 
 //                                    Log.i(getLogTag(), "The subscription is expired.");
-//                                    Toast.makeText(getContext(), "The subscription is expired.", Toast.LENGTH_SHORT).show();
 
                                     isSubscribing = false;
 
@@ -860,8 +823,6 @@ public class GoogleNearbyMessages extends Plugin {
                             (Void) -> {
 //                                Log.i(getLogTag(), "Subscribe Success.");
 
-//                                Toast.makeText(getContext(), "We are subscribed", Toast.LENGTH_SHORT).show();
-
                                 isSubscribing = true;
 
                                 call.success();
@@ -869,8 +830,6 @@ public class GoogleNearbyMessages extends Plugin {
                     .addOnFailureListener(
                             (Exception e) -> {
 //                                Log.e(getLogTag(), "Subscribe Failure.", e);
-
-//                                Toast.makeText(getContext(), "Unable to start subscribing: " + e, Toast.LENGTH_SHORT).show();
 
                                 isSubscribing = false;
 
@@ -1004,12 +963,6 @@ public class GoogleNearbyMessages extends Plugin {
                     String.format(
                             "status(isPublishing=%s, isSubscribing=%s, uuids=%s)",
                             isPublishing, isSubscribing, uuids));
-
-//            Toast.makeText(getContext(),
-//                    String.format(
-//                            "status(isPublishing=%s, isSubscribing=%s)",
-//                            isPublishing, isSubscribing),
-//                    Toast.LENGTH_SHORT).show();
 
             JSObject data = new JSObject();
             data.put("isPublishing", isPublishing);
