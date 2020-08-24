@@ -17,8 +17,8 @@
     "@rollup/plugin-node-resolve": "^8.4.0"
   },
   "devDependencies": {
-    "@capacitor/android": "^2.3.0",
-    "@capacitor/ios": "^2.3.0",
+    "@capacitor/android": "^2.4.0",
+    "@capacitor/ios": "^2.4.0",
     "rimraf": "^3.0.0",
     "typescript": "^3.9.7"
   },
