@@ -68,7 +68,6 @@ public class GoogleNearbyMessages extends Plugin {
 
     private StatusCallback mStatusCallback;
 
-    private boolean isSubscribing = false;
     private SubscribeOptions mSubscribeOptions;
 
     @Override
@@ -799,7 +798,7 @@ public class GoogleNearbyMessages extends Plugin {
 
 //                                    Log.i(getLogTag(), "The subscription is expired.");
 
-                                    isSubscribing = false;
+                                    mSubscribeOptions = null;
 
                                     notifyListeners("onSubscribeExpired", null);
                                 }
@@ -823,15 +822,13 @@ public class GoogleNearbyMessages extends Plugin {
                             (Void) -> {
 //                                Log.i(getLogTag(), "Subscribe Success.");
 
-                                isSubscribing = true;
-
                                 call.success();
                             })
                     .addOnFailureListener(
                             (Exception e) -> {
 //                                Log.e(getLogTag(), "Subscribe Failure.", e);
 
-                                isSubscribing = false;
+                                mSubscribeOptions = null;
 
                                 call.error(e.getLocalizedMessage(), e);
                             });
@@ -865,6 +862,8 @@ public class GoogleNearbyMessages extends Plugin {
 
             doUnsubscribe();
 
+            mSubscribeOptions = null;
+
             call.success();
         } catch (Exception e) {
             call.error(e.getLocalizedMessage(), e);
@@ -880,8 +879,6 @@ public class GoogleNearbyMessages extends Plugin {
                             mMessageListener
                     );
         }
-
-        isSubscribing = false;
     }
 
     @PluginMethod()
@@ -897,9 +894,8 @@ public class GoogleNearbyMessages extends Plugin {
             for (MessageOptions messageOptions : mMessages.values()) {
                 doUnpublish(messageOptions.message);
             }
-            if (isSubscribing) {
-                doUnsubscribe();
-            }
+
+            doUnsubscribe();
 
             call.success();
         } catch (Exception e) {
@@ -928,21 +924,16 @@ public class GoogleNearbyMessages extends Plugin {
 //                                    Log.e(getLogTag(), "Publish Failure.", e);
                                 });
             }
-            if (!isSubscribing) {
-                doSubscribe()
-                        .addOnSuccessListener(
-                                (Void) -> {
+
+            doSubscribe()
+                    .addOnSuccessListener(
+                            (Void) -> {
 //                                    Log.i(getLogTag(), "Subscribe Success.");
-
-                                    isSubscribing = true;
-                                })
-                        .addOnFailureListener(
-                                (Exception e) -> {
+                            })
+                    .addOnFailureListener(
+                            (Exception e) -> {
 //                                    Log.e(getLogTag(), "Subscribe Failure.", e);
-
-                                    isSubscribing = false;
-                                });
-            }
+                            });
 
             call.success();
         } catch (Exception e) {
@@ -956,6 +947,7 @@ public class GoogleNearbyMessages extends Plugin {
 //            Log.i(getLogTag(), "Status.");
 
             boolean isPublishing = (mMessages.size() > 0);
+            boolean isSubscribing = (mSubscribeOptions != null);
 
             Set<UUID> uuids = mMessages.keySet();
 
