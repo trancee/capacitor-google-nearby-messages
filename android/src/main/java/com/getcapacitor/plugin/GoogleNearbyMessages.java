@@ -404,6 +404,8 @@ public class GoogleNearbyMessages extends Plugin {
             {
                 doUnsubscribe();
 
+                mSubscribeOptions = null;
+
                 notifyListeners("onSubscribeExpired", null);
             }
 
