@@ -33,7 +33,7 @@ public class GoogleNearbyMessages: CAPPlugin {
     var messageManager: GNSMessageManager?
     var nearbyPermission: GNSPermission?
 
-    var publications = [UUID : MessageOptions]()
+    var publications = [String : MessageOptions]()
     var subscription: GNSSubscription?
 
     @objc func initialize(_ call: CAPPluginCall) {
@@ -203,7 +203,7 @@ public class GoogleNearbyMessages: CAPPlugin {
         }
 
         do {
-            let messageUUID: UUID = UUID.init()
+            let messageUUID: String = UUID().uuidString
 
             let paramsBlock = {
                 // Optional parameters for a publication.
@@ -298,7 +298,7 @@ public class GoogleNearbyMessages: CAPPlugin {
 
         do {
             if let uuid = call.getString("uuid") {
-                guard let messageUUID = UUID.init(uuidString: uuid) else {
+                guard let messageUUID = UUID.init(uuidString: uuid)?.uuidString else {
                     call.reject(Constants.MESSAGE_UUID_INVALID)
                     return
                 }
@@ -323,7 +323,7 @@ public class GoogleNearbyMessages: CAPPlugin {
         }
     }
 
-    func doUnpublish(_ messageUUID: UUID) {
+    func doUnpublish(_ messageUUID: String) {
         guard var messageOptions = publications[messageUUID] else {
             return
         }
@@ -606,7 +606,7 @@ public class GoogleNearbyMessages: CAPPlugin {
             let isPublishing = isGranted ? (publications.count > 0) : false
             let isSubscribing = isGranted ? (subscription != nil) : false
 
-            let uuids = publications.keys
+            let uuids = Array(publications.keys)
 
             call.success([
                 "isPublishing": isPublishing,
