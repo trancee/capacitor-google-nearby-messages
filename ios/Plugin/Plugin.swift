@@ -21,8 +21,9 @@ struct Constants {
 public class GoogleNearbyMessages: CAPPlugin {
     struct MessageOptions {
         var publication: GNSPublication?
+
         var message: GNSMessage?
-        var params: GNSPublicationParamsBlock?
+        var options: GNSPublicationParamsBlock?
     }
 
     /**
@@ -34,7 +35,9 @@ public class GoogleNearbyMessages: CAPPlugin {
     var nearbyPermission: GNSPermission?
 
     var publications = [String : MessageOptions]()
+
     var subscription: GNSSubscription?
+    var subscriptionOptions: GNSSubscriptionParamsBlock?
 
     @objc func initialize(_ call: CAPPluginCall) {
         guard let apiKey = call.getString("apiKey") else {
@@ -43,13 +46,13 @@ public class GoogleNearbyMessages: CAPPlugin {
         }
 
         do {
-            if messageManager == nil {
+            if self.messageManager == nil {
                 // Enable debug logging to help track down problems.
                 GNSMessageManager.setDebugLoggingEnabled(true)
 
                 // Create the message manager, which lets you publish messages and subscribe to messages
                 // published by nearby devices.
-                messageManager = GNSMessageManager(
+                self.messageManager = GNSMessageManager(
                     // The API key of the app, required to use the Messages service
                     apiKey: apiKey,
 
@@ -86,9 +89,9 @@ public class GoogleNearbyMessages: CAPPlugin {
                 })
             }
 
-            if nearbyPermission == nil {
+            if self.nearbyPermission == nil {
                 // Initializes the permission object with a handler that is called whenever the permission state changes.
-                nearbyPermission = GNSPermission(
+                self.nearbyPermission = GNSPermission(
                     // The permission granted handler
                     changedHandler: {
                         (granted: Bool) in
@@ -109,10 +112,12 @@ public class GoogleNearbyMessages: CAPPlugin {
         do {
             doUnsubscribe()
 
+            self.subscriptionOptions = nil
+
             self.notifyListeners("onSubscribeExpired", data: nil)
         }
 
-        for (messageUUID, _) in publications  {
+        for (messageUUID, _) in self.publications  {
             doUnpublish(messageUUID)
 
             self.notifyListeners("onPublishExpired", data: [
@@ -120,12 +125,12 @@ public class GoogleNearbyMessages: CAPPlugin {
             ])
         }
 
-        nearbyPermission = nil
-        messageManager = nil
+        self.nearbyPermission = nil
+        self.messageManager = nil
     }
 
     @objc func publish(_ call: CAPPluginCall) {
-        if messageManager == nil {
+        if self.messageManager == nil {
             call.reject(Constants.NOT_INITIALIZED)
             return
         }
@@ -267,7 +272,7 @@ public class GoogleNearbyMessages: CAPPlugin {
                 self.publications[messageUUID] = MessageOptions(
                     publication: publication,
                     message: message,
-                    params: paramsBlock
+                    options: paramsBlock
                 )
             }
         } catch let e {
@@ -275,8 +280,8 @@ public class GoogleNearbyMessages: CAPPlugin {
         }
     }
 
-    func doPublish(_ message: GNSMessage, _ options: @escaping GNSPublicationParamsBlock) -> GNSPublication? {
-        guard let messageManager = messageManager else {
+    func doPublish(_ message: GNSMessage?, _ options: GNSPublicationParamsBlock?) -> GNSPublication? {
+        guard let messageManager = self.messageManager else {
             return nil
         }
 
@@ -291,7 +296,7 @@ public class GoogleNearbyMessages: CAPPlugin {
     }
 
     @objc func unpublish(_ call: CAPPluginCall) {
-        guard messageManager != nil else {
+        if self.messageManager == nil {
             call.reject(Constants.NOT_INITIALIZED)
             return
         }
@@ -303,7 +308,7 @@ public class GoogleNearbyMessages: CAPPlugin {
                     return
                 }
 
-                guard publications.keys.contains(messageUUID) else {
+                guard self.publications.keys.contains(messageUUID) else {
                     call.reject(Constants.MESSAGE_UUID_NOT_FOUND);
                     return;
                 }
@@ -312,7 +317,7 @@ public class GoogleNearbyMessages: CAPPlugin {
                 doUnpublish(messageUUID)
             } else {
                 // Unpublish all messages.
-                for (messageUUID, _) in publications {
+                for (messageUUID, _) in self.publications {
                     doUnpublish(messageUUID)
                 }
             }
@@ -324,19 +329,24 @@ public class GoogleNearbyMessages: CAPPlugin {
     }
 
     func doUnpublish(_ messageUUID: String) {
-        guard var messageOptions = publications[messageUUID] else {
+        guard var messageOptions = self.publications[messageUUID] else {
             return
         }
 
-        messageOptions.publication = nil
-        messageOptions.message = nil
-        messageOptions.params = nil
+        doUnpublish(&messageOptions)
 
-        publications.removeValue(forKey: messageUUID)
+        messageOptions.message = nil
+        messageOptions.options = nil
+
+        self.publications.removeValue(forKey: messageUUID)
+    }
+    func doUnpublish(_ messageOptions: inout MessageOptions) {
+        // When the publication object is deallocated, the message will no longer be published.
+        messageOptions.publication = nil
     }
 
     @objc func subscribe(_ call: CAPPluginCall) {
-        if messageManager == nil {
+        if self.messageManager == nil {
             call.reject(Constants.NOT_INITIALIZED)
             return
         }
@@ -490,15 +500,16 @@ public class GoogleNearbyMessages: CAPPlugin {
             }
 
             DispatchQueue.main.async {
-                self.subscription = self.doSubscribe(paramsBlock)
+                self.subscriptionOptions = paramsBlock
+                self.subscription = self.doSubscribe()
             }
         } catch let e {
             call.error(e.localizedDescription, e)
         }
     }
 
-    func doSubscribe(_ options: @escaping GNSSubscriptionParamsBlock) -> GNSSubscription? {
-        guard let messageManager = messageManager else {
+    func doSubscribe() -> GNSSubscription? {
+        guard let messageManager = self.messageManager else {
             return nil
         }
 
@@ -533,18 +544,20 @@ public class GoogleNearbyMessages: CAPPlugin {
                 ])
         },
             // Use this block to pass additional parameters
-            paramsBlock: options
+            paramsBlock: self.subscriptionOptions
         )
     }
 
     @objc func unsubscribe(_ call: CAPPluginCall) {
-        guard messageManager != nil else {
+        if self.messageManager == nil {
             call.reject(Constants.NOT_INITIALIZED)
             return
         }
 
         do {
             doUnsubscribe()
+
+            self.subscriptionOptions = nil
 
             call.success()
         } catch let e {
@@ -553,18 +566,22 @@ public class GoogleNearbyMessages: CAPPlugin {
     }
 
     func doUnsubscribe() {
+        // When the subscription object is deallocated, message delivery will cease.
         self.subscription = nil
     }
 
     @objc func pause(_ call: CAPPluginCall) {
-        guard messageManager != nil else {
+        if self.messageManager == nil {
             call.reject(Constants.NOT_INITIALIZED)
             return
         }
 
         do {
-            // Changes the Nearby permission state.
-            GNSPermission.setGranted(false)
+            for (_, var messageOptions) in self.publications {
+                doUnpublish(&messageOptions)
+            }
+
+            doUnsubscribe()
 
             call.success()
         } catch let e {
@@ -572,14 +589,17 @@ public class GoogleNearbyMessages: CAPPlugin {
         }
     }
     @objc func resume(_ call: CAPPluginCall) {
-        guard messageManager != nil else {
+        if self.messageManager == nil {
             call.reject(Constants.NOT_INITIALIZED)
             return
         }
 
         do {
-            // Changes the Nearby permission state.
-            GNSPermission.setGranted(true)
+            for (_, var messageOptions) in self.publications {
+                messageOptions.publication = doPublish(messageOptions.message, messageOptions.options)
+            }
+
+            self.subscription = doSubscribe()
 
             call.success()
         } catch let e {
@@ -587,26 +607,12 @@ public class GoogleNearbyMessages: CAPPlugin {
         }
     }
 
-    @objc func isGranted(_ call: CAPPluginCall) {
-        guard messageManager != nil else {
-            call.reject(Constants.NOT_INITIALIZED)
-            return
-        }
-
-        // Whether Nearby permission is currently granted for the app on this device.
-        call.success([
-            "isGranted": GNSPermission.isGranted()
-        ])
-    }
-
     @objc func status(_ call: CAPPluginCall) {
         do {
-            let isGranted = GNSPermission.isGranted()
+            let isPublishing = (self.publications.count > 0)
+            let isSubscribing = (self.subscription != nil)
 
-            let isPublishing = isGranted ? (publications.count > 0) : false
-            let isSubscribing = isGranted ? (subscription != nil) : false
-
-            let uuids = Array(publications.keys)
+            let uuids = Array(self.publications.keys)
 
             call.success([
                 "isPublishing": isPublishing,
