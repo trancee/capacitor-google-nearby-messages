@@ -5,6 +5,9 @@ struct Constants {
     static let NOT_INITIALIZED = "Nearby Messages API not initialized"
     static let INITIALIZE_API_KEY = "Most provide apiKey"
     static let PERMISSION_DENIED = "Nearby permissions not granted"
+    static let PERMISSION_MICROPHONE_DENIED = "Microphone permission is denied"
+    static let PERMISSION_BLUETOOTH_DENIED = "Bluetooth permission is denied"
+    static let PERMISSION_BLUETOOTH_OFF = "Bluetooth is powered off"
     static let PUBLISH_MESSAGE_CONTENT = "Must provide message with content"
     static let PUBLISH_MESSAGE_TYPE = "Must provide message with type"
     static let PUBLISH_MESSAGE = "Must provide message"
@@ -68,19 +71,19 @@ public class GoogleNearbyMessages: CAPPlugin {
                         // The following error handlers are called (on the main thread) when the status of the error changes.
                         params.microphonePermissionErrorHandler = { (hasError: Bool) in
                             if (hasError) {
-                                print("Nearby works better if microphone use is allowed")
+                                call.error(Constants.PERMISSION_MICROPHONE_DENIED)
                             }
                         }
                         // Bluetooth permission is denied.
                         params.bluetoothPermissionErrorHandler = { (hasError: Bool) in
                             if (hasError) {
-                                print("Nearby works better if Bluetooth use is allowed")
+                                call.error(Constants.PERMISSION_BLUETOOTH_DENIED)
                             }
                         }
                         // Bluetooth is powered off.
                         params.bluetoothPowerErrorHandler = { (hasError: Bool) in
                             if (hasError) {
-                                print("Nearby works better if Bluetooth is turned on")
+                                call.error(Constants.PERMISSION_BLUETOOTH_OFF)
                             }
                         }
 
@@ -88,6 +91,8 @@ public class GoogleNearbyMessages: CAPPlugin {
                         params.shouldUseBestAudioSessionCategory = true
                 })
             }
+
+            var savedCall = true
 
             if self.nearbyPermission == nil {
                 // Initializes the permission object with a handler that is called whenever the permission state changes.
@@ -99,10 +104,24 @@ public class GoogleNearbyMessages: CAPPlugin {
                         self.notifyListeners("onPermissionChanged", data: [
                             "permissionGranted": granted,
                         ])
+
+                        if savedCall {
+                            if (granted) {
+                                call.success()
+                            } else {
+                                call.reject(Constants.PERMISSION_DENIED)
+                            }
+
+                            savedCall = false
+                        }
                 })
             }
 
-            call.success()
+            if GNSPermission.isGranted() {
+                savedCall = false
+
+                call.success()
+            }
         } catch let e {
             call.error(e.localizedDescription, e)
         }
