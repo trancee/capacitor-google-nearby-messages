@@ -222,7 +222,7 @@ public class GoogleNearbyMessages: CAPPlugin {
         }
 
         do {
-            let messageUUID: String = UUID().uuidString
+            let messageUUID: String = UUID().uuidString.lowercased()
 
             let paramsBlock = {
                 // Optional parameters for a publication.
@@ -317,7 +317,7 @@ public class GoogleNearbyMessages: CAPPlugin {
 
         do {
             if let uuid = call.getString("uuid") {
-                guard let messageUUID = UUID.init(uuidString: uuid)?.uuidString else {
+                guard let messageUUID = UUID.init(uuidString: uuid)?.uuidString.lowercased() else {
                     call.reject(Constants.MESSAGE_UUID_INVALID)
                     return
                 }
