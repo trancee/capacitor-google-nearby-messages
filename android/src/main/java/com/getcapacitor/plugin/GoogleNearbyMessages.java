@@ -134,6 +134,8 @@ public class GoogleNearbyMessages extends Plugin {
 
     @PluginMethod()
     public void initialize(PluginCall call) {
+        GoogleNearbyMessages self = this;
+
         try {
 //            Log.i(getLogTag(), "Initializing.");
 
@@ -144,7 +146,7 @@ public class GoogleNearbyMessages extends Plugin {
 
             saveCall(call);
 
-            if (mMessagesClient == null) {
+            if (self.mMessagesClient == null) {
                 /**
                  * Newer GoogleApi-based API calls will automatically display either a dialog
                  * (if the client is instantiated with an Activity) or system tray notification
@@ -159,7 +161,7 @@ public class GoogleNearbyMessages extends Plugin {
                 boolean hasPermissionGranted = sharedPref.getBoolean("permissionGranted", false);
 
                 if (hasPermissionGranted) {
-                    mMessagesClient = Nearby.getMessagesClient(
+                    self.mMessagesClient = Nearby.getMessagesClient(
                             // Resolvable connections errors will create a system notification that the user can tap in order to resolve the error.
                             getContext(),
 
@@ -174,7 +176,7 @@ public class GoogleNearbyMessages extends Plugin {
                     );
                 } else {
                     // Creates a new instance of MessagesClient.
-                    mMessagesClient = Nearby.getMessagesClient(
+                    self.mMessagesClient = Nearby.getMessagesClient(
                             // The given Activity will be used to automatically prompt for resolution of resolvable connection errors.
                             getActivity(),
 
@@ -189,7 +191,7 @@ public class GoogleNearbyMessages extends Plugin {
                     );
                 }
 
-                mStatusCallback = new StatusCallback() {
+                self.mStatusCallback = new StatusCallback() {
                     @Override
                     // Called when permission is granted or revoked for this app to use Nearby.
                     public void onPermissionChanged(boolean permissionGranted) {
@@ -231,14 +233,14 @@ public class GoogleNearbyMessages extends Plugin {
                 };
 
                 // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
-                mMessagesClient.registerStatusCallback(
+                self.mMessagesClient.registerStatusCallback(
                         // Callbacks for global status changes that affect a client of Nearby Messages.
-                        mStatusCallback
+                        self.mStatusCallback
                 );
 
-                if (mMessageListener == null) {
+                if (self.mMessageListener == null) {
                     // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/MessageListener
-                    mMessageListener = new MessageListener() {
+                    self.mMessageListener = new MessageListener() {
                         // A listener for receiving subscribed messages. These callbacks will be delivered when messages are found or lost.
 
                         /**
@@ -400,35 +402,47 @@ public class GoogleNearbyMessages extends Plugin {
 
     @PluginMethod()
     public void reset(PluginCall call) {
-        if (mMessagesClient != null) {
-            {
-                doUnsubscribe();
+        GoogleNearbyMessages self = this;
 
-                mSubscribeOptions = null;
+        try {
+//            Log.i(getLogTag(), "Resetting.");
 
-                notifyListeners("onSubscribeExpired", null);
+            if (self.mMessagesClient != null) {
+                {
+                    doUnsubscribe();
+
+                    self.mSubscribeOptions = null;
+
+                    notifyListeners("onSubscribeExpired", null);
+                }
+
+                for (UUID messageUUID : self.mMessages.keySet()) {
+                    doUnpublish(messageUUID);
+
+                    JSObject data = new JSObject();
+                    data.put("uuid", messageUUID);
+
+                    notifyListeners("onPublishExpired", data);
+                }
+
+                self.mMessagesClient.unregisterStatusCallback(self.mStatusCallback);
+
+                self.mStatusCallback = null;
+                self.mMessagesClient = null;
             }
 
-            for (UUID messageUUID : mMessages.keySet()) {
-                doUnpublish(messageUUID);
-
-                JSObject data = new JSObject();
-                data.put("uuid", messageUUID);
-
-                notifyListeners("onPublishExpired", data);
-            }
-
-            mMessagesClient.unregisterStatusCallback(mStatusCallback);
-
-            mStatusCallback = null;
-            mMessagesClient = null;
+            call.success();
+        } catch (Exception e) {
+            call.error(e.getLocalizedMessage(), e);
         }
     }
 
     @PluginMethod()
     // https://developers.google.com/nearby/messages/android/pub-sub#publish_a_message
     public void publish(PluginCall call) {
-        if (mMessagesClient == null) {
+        GoogleNearbyMessages self = this;
+
+        if (self.mMessagesClient == null) {
             call.reject(Constants.NOT_INITIALIZED);
             return;
         }
@@ -556,7 +570,7 @@ public class GoogleNearbyMessages extends Plugin {
                             (Void) -> {
 //                                Log.i(getLogTag(), "Publish Success.");
 
-                                mMessages.put(messageUUID, messageOptions);
+                                self.mMessages.put(messageUUID, messageOptions);
 
                                 JSObject data = new JSObject();
                                 data.put("uuid", messageUUID);
@@ -575,9 +589,11 @@ public class GoogleNearbyMessages extends Plugin {
     }
 
     private Task<Void> doPublish(Message message, PublishOptions options) {
+        GoogleNearbyMessages self = this;
+
         return
                 // Publishes a message so that it is visible to nearby devices.
-                mMessagesClient
+                self.mMessagesClient
                         .publish(
                                 // A Message to publish for nearby devices to see
                                 message,
@@ -589,7 +605,9 @@ public class GoogleNearbyMessages extends Plugin {
     @PluginMethod()
     // https://developers.google.com/nearby/messages/android/pub-sub#unpublish_a_message
     public void unpublish(PluginCall call) {
-        if (mMessagesClient == null) {
+        GoogleNearbyMessages self = this;
+
+        if (self.mMessagesClient == null) {
             call.reject(Constants.NOT_INITIALIZED);
             return;
         }
@@ -600,14 +618,14 @@ public class GoogleNearbyMessages extends Plugin {
             String uuid = call.getString("uuid", null);
             if (uuid == null || uuid.length() == 0) {
                 // Unpublish all messages.
-                for (UUID messageUUID : mMessages.keySet()) {
+                for (UUID messageUUID : self.mMessages.keySet()) {
                     doUnpublish(messageUUID);
                 }
             } else {
                 // Unpublish message.
                 UUID messageUUID = UUID.fromString(uuid);
 
-                MessageOptions messageOptions = mMessages.get(messageUUID);
+                MessageOptions messageOptions = self.mMessages.get(messageUUID);
                 if (messageOptions == null) {
                     call.reject(Constants.MESSAGE_UUID_NOT_FOUND);
                     return;
@@ -623,18 +641,22 @@ public class GoogleNearbyMessages extends Plugin {
     }
 
     private void doUnpublish(UUID messageUUID) {
-        MessageOptions messageOptions = mMessages.get(messageUUID);
+        GoogleNearbyMessages self = this;
+
+        MessageOptions messageOptions = self.mMessages.get(messageUUID);
         if (messageOptions != null) {
             doUnpublish(messageOptions.message);
 
-            mMessages.remove(messageUUID);
+            self.mMessages.remove(messageUUID);
         }
     }
 
     private void doUnpublish(Message message) {
-        if (mMessagesClient != null) {
+        GoogleNearbyMessages self = this;
+
+        if (self.mMessagesClient != null) {
             // Cancels an existing published message.
-            mMessagesClient
+            self.mMessagesClient
                     .unpublish(
                             // A Message that is currently published
                             message
@@ -645,7 +667,9 @@ public class GoogleNearbyMessages extends Plugin {
     @PluginMethod()
     // https://developers.google.com/nearby/messages/android/pub-sub#subscribe_to_messages
     public void subscribe(PluginCall call) {
-        if (mMessagesClient == null) {
+        GoogleNearbyMessages self = this;
+
+        if (self.mMessagesClient == null) {
             call.reject(Constants.NOT_INITIALIZED);
             return;
         }
@@ -800,7 +824,7 @@ public class GoogleNearbyMessages extends Plugin {
 
 //                                    Log.i(getLogTag(), "The subscription is expired.");
 
-                                    mSubscribeOptions = null;
+                                    self.mSubscribeOptions = null;
 
                                     notifyListeners("onSubscribeExpired", null);
                                 }
@@ -817,9 +841,9 @@ public class GoogleNearbyMessages extends Plugin {
                 options.setFilter(filter);
             }
 
-            mSubscribeOptions = options.build();
+            self.mSubscribeOptions = options.build();
 
-            doSubscribe()
+            doSubscribe(self.mSubscribeOptions)
                     .addOnSuccessListener(
                             (Void) -> {
 //                                Log.i(getLogTag(), "Subscribe Success.");
@@ -830,7 +854,7 @@ public class GoogleNearbyMessages extends Plugin {
                             (Exception e) -> {
 //                                Log.e(getLogTag(), "Subscribe Failure.", e);
 
-                                mSubscribeOptions = null;
+                                self.mSubscribeOptions = null;
 
                                 call.error(e.getLocalizedMessage(), e);
                             });
@@ -839,22 +863,26 @@ public class GoogleNearbyMessages extends Plugin {
         }
     }
 
-    private Task<Void> doSubscribe() {
+    private Task<Void> doSubscribe(SubscribeOptions options) {
+        GoogleNearbyMessages self = this;
+
         return
                 // Subscribes for published messages from nearby devices.
-                mMessagesClient
+                self.mMessagesClient
                         .subscribe(
                                 // A MessageListener implementation to get callbacks of received messages
-                                mMessageListener,
+                                self.mMessageListener,
                                 // A SubscribeOptions object for this operation
-                                mSubscribeOptions
+                                options
                         );
     }
 
     @PluginMethod()
     // https://developers.google.com/nearby/messages/android/pub-sub#unsubscribe
     public void unsubscribe(PluginCall call) {
-        if (mMessagesClient == null) {
+        GoogleNearbyMessages self = this;
+
+        if (self.mMessagesClient == null) {
             call.reject(Constants.NOT_INITIALIZED);
             return;
         }
@@ -864,7 +892,7 @@ public class GoogleNearbyMessages extends Plugin {
 
             doUnsubscribe();
 
-            mSubscribeOptions = null;
+            self.mSubscribeOptions = null;
 
             call.success();
         } catch (Exception e) {
@@ -873,19 +901,23 @@ public class GoogleNearbyMessages extends Plugin {
     }
 
     private void doUnsubscribe() {
-        if (mMessagesClient != null) {
+        GoogleNearbyMessages self = this;
+
+        if (self.mMessagesClient != null) {
             // Cancels an existing subscription.
-            mMessagesClient
+            self.mMessagesClient
                     .unsubscribe(
                             // A MessageListener implementation that is currently subscribed
-                            mMessageListener
+                            self.mMessageListener
                     );
         }
     }
 
     @PluginMethod()
     public void pause(PluginCall call) {
-        if (mMessagesClient == null) {
+        GoogleNearbyMessages self = this;
+
+        if (self.mMessagesClient == null) {
             call.reject(Constants.NOT_INITIALIZED);
             return;
         }
@@ -893,7 +925,7 @@ public class GoogleNearbyMessages extends Plugin {
         try {
 //            Log.i(getLogTag(), "Pausing.");
 
-            for (MessageOptions messageOptions : mMessages.values()) {
+            for (MessageOptions messageOptions : self.mMessages.values()) {
                 doUnpublish(messageOptions.message);
             }
 
@@ -907,7 +939,9 @@ public class GoogleNearbyMessages extends Plugin {
 
     @PluginMethod()
     public void resume(PluginCall call) {
-        if (mMessagesClient == null) {
+        GoogleNearbyMessages self = this;
+
+        if (self.mMessagesClient == null) {
             call.reject(Constants.NOT_INITIALIZED);
             return;
         }
@@ -915,7 +949,7 @@ public class GoogleNearbyMessages extends Plugin {
         try {
 //            Log.i(getLogTag(), "Resuming.");
 
-            for (MessageOptions messageOptions : mMessages.values()) {
+            for (MessageOptions messageOptions : self.mMessages.values()) {
                 doPublish(messageOptions.message, messageOptions.options)
                         .addOnSuccessListener(
                                 (Void) -> {
@@ -927,15 +961,17 @@ public class GoogleNearbyMessages extends Plugin {
                                 });
             }
 
-            doSubscribe()
-                    .addOnSuccessListener(
-                            (Void) -> {
+            if (self.mSubscribeOptions != null) {
+                doSubscribe(self.mSubscribeOptions)
+                        .addOnSuccessListener(
+                                (Void) -> {
 //                                    Log.i(getLogTag(), "Subscribe Success.");
-                            })
-                    .addOnFailureListener(
-                            (Exception e) -> {
+                                })
+                        .addOnFailureListener(
+                                (Exception e) -> {
 //                                    Log.e(getLogTag(), "Subscribe Failure.", e);
-                            });
+                                });
+            }
 
             call.success();
         } catch (Exception e) {
@@ -945,13 +981,15 @@ public class GoogleNearbyMessages extends Plugin {
 
     @PluginMethod()
     public void status(PluginCall call) {
+        GoogleNearbyMessages self = this;
+
         try {
 //            Log.i(getLogTag(), "Status.");
 
-            boolean isPublishing = (mMessages.size() > 0);
-            boolean isSubscribing = (mSubscribeOptions != null);
+            boolean isPublishing = (self.mMessages.size() > 0);
+            boolean isSubscribing = (self.mSubscribeOptions != null);
 
-            Set<UUID> uuids = mMessages.keySet();
+            Set<UUID> uuids = self.mMessages.keySet();
 
             Log.i(getLogTag(),
                     String.format(
