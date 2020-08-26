@@ -12,6 +12,7 @@ struct Constants {
     static let PUBLISH_MESSAGE_TYPE = "Must provide message with type"
     static let PUBLISH_MESSAGE = "Must provide message"
     static let PUBLISH_ERROR = "Unable to publish message"
+    static let SUBSCRIBE_ERROR = "Unable to subscribe message"
     static let MESSAGE_UUID_INVALID = "Message UUID invalid"
     static let MESSAGE_UUID_NOT_FOUND = "Message UUID not found"
 }
@@ -92,8 +93,6 @@ public class GoogleNearbyMessages: CAPPlugin {
                 })
             }
 
-            var savedCall = true
-
             if self.nearbyPermission == nil {
                 // Initializes the permission object with a handler that is called whenever the permission state changes.
                 self.nearbyPermission = GNSPermission(
@@ -104,22 +103,12 @@ public class GoogleNearbyMessages: CAPPlugin {
                         self.notifyListeners("onPermissionChanged", data: [
                             "permissionGranted": granted,
                         ])
-
-                        if savedCall {
-                            if (granted) {
-                                call.success()
-                            } else {
-                                call.reject(Constants.PERMISSION_DENIED)
-                            }
-
-                            savedCall = false
-                        }
                 })
             }
 
-            if GNSPermission.isGranted() {
-                savedCall = false
+            GNSPermission.setGranted(true)
 
+            if GNSPermission.isGranted() {
                 call.success()
             }
         } catch let e {
@@ -129,23 +118,29 @@ public class GoogleNearbyMessages: CAPPlugin {
 
     @objc func reset(_ call: CAPPluginCall) {
         do {
-            doUnsubscribe()
+            if self.subscriptionOptions != nil {
+                doUnsubscribe()
 
-            self.subscriptionOptions = nil
+                self.subscriptionOptions = nil
 
-            self.notifyListeners("onSubscribeExpired", data: nil)
+                self.notifyListeners("onSubscribeExpired", data: nil)
+            }
+
+            for (messageUUID, _) in self.publications {
+                doUnpublish(messageUUID)
+
+                self.notifyListeners("onPublishExpired", data: [
+                    "uuid": messageUUID,
+                ])
+            }
+
+            self.nearbyPermission = nil
+            self.messageManager = nil
+
+            call.success()
+        } catch let e {
+            call.error(e.localizedDescription, e)
         }
-
-        for (messageUUID, _) in self.publications  {
-            doUnpublish(messageUUID)
-
-            self.notifyListeners("onPublishExpired", data: [
-                "uuid": messageUUID,
-            ])
-        }
-
-        self.nearbyPermission = nil
-        self.messageManager = nil
     }
 
     @objc func publish(_ call: CAPPluginCall) {
@@ -519,15 +514,20 @@ public class GoogleNearbyMessages: CAPPlugin {
             }
 
             DispatchQueue.main.async {
+                guard let subscription = self.doSubscribe(paramsBlock) else {
+                    call.error(Constants.SUBSCRIBE_ERROR)
+                    return
+                }
+
+                self.subscription = subscription
                 self.subscriptionOptions = paramsBlock
-                self.subscription = self.doSubscribe()
             }
         } catch let e {
             call.error(e.localizedDescription, e)
         }
     }
 
-    func doSubscribe() -> GNSSubscription? {
+    func doSubscribe(_ options: GNSSubscriptionParamsBlock?) -> GNSSubscription? {
         guard let messageManager = self.messageManager else {
             return nil
         }
@@ -563,7 +563,7 @@ public class GoogleNearbyMessages: CAPPlugin {
                 ])
         },
             // Use this block to pass additional parameters
-            paramsBlock: self.subscriptionOptions
+            paramsBlock: options
         )
     }
 
@@ -618,7 +618,11 @@ public class GoogleNearbyMessages: CAPPlugin {
                 messageOptions.publication = doPublish(messageOptions.message, messageOptions.options)
             }
 
-            self.subscription = doSubscribe()
+            if let options = self.subscriptionOptions {
+                self.subscription = doSubscribe(options)
+            } else {
+                self.subscription = nil
+            }
 
             call.success()
         } catch let e {
