@@ -108,6 +108,13 @@ public class GoogleNearbyMessages extends Plugin {
     }
 
     @Override
+    protected void handleOnStart() {
+//        Log.i(getLogTag(), "Starting.");
+
+        getActivity().startService(new Intent(getActivity(), KillService.class));
+    }
+
+    @Override
     protected void handleOnDestroy() {
 //        Log.i(getLogTag(), "Destroying.");
 

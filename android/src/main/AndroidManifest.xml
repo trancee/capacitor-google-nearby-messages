@@ -1,4 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.getcapacitor.plugin.googlenearbymessages">
 
-  <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.getcapacitor.plugin.googlenearbymessages">
-  </manifest>
+    <application>
+        <service
+            android:name="com.getcapacitor.plugin.KillService"
+            android:stopWithTask="false" />
+    </application>
+
+</manifest>
