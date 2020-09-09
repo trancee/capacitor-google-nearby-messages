@@ -107,6 +107,28 @@ public class GoogleNearbyMessages extends Plugin {
         }
     }
 
+    @Override
+    protected void handleOnDestroy() {
+//        Log.i(getLogTag(), "Destroying.");
+
+        if (this.mMessagesClient != null) {
+            {
+                doUnsubscribe(false);
+
+                this.mSubscribeOptions = null;
+            }
+
+            for (UUID messageUUID : this.mMessages.keySet()) {
+                doUnpublish(messageUUID);
+            }
+
+            this.mMessagesClient.unregisterStatusCallback(this.mStatusCallback);
+
+            this.mStatusCallback = null;
+            this.mMessagesClient = null;
+        }
+    }
+
     private boolean isGooglePlayServicesAvailable() {
         GoogleApiAvailability googleApi = GoogleApiAvailability.getInstance();
 
