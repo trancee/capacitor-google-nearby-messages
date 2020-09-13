@@ -49,10 +49,12 @@ public class GoogleNearbyMessages: CAPPlugin {
             return
         }
 
+        let debug = call.getBool("debug", false)
+
         do {
             if self.messageManager == nil {
                 // Enable debug logging to help track down problems.
-                GNSMessageManager.setDebugLoggingEnabled(true)
+                GNSMessageManager.setDebugLoggingEnabled(debug!)
 
                 // Create the message manager, which lets you publish messages and subscribe to messages
                 // published by nearby devices.

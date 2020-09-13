@@ -23,6 +23,8 @@ export class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMe
   async initialize(options: {
     // The API key of the app, required to use the Messages service (iOS).
     apiKey?: string,
+    // Enable debug logging to help track down problems (iOS).
+    debug?: boolean,
   }): Promise<InitializeResult> {
     console.log("initialize", options);
     throw new Error("Method not implemented.");

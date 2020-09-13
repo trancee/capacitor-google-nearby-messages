@@ -35,3 +35,10 @@ To use the Nearby Messages APIs, you need a [Google Account](https://www.google.
 Get an API key, then pass it as the *apiKey* argument in the `initialize` method.
 
 [Get Started](https://developers.google.com/nearby/messages/ios/get-started)
+
+```sh
+cd ios
+pod repo update
+pod install
+pod update
+```

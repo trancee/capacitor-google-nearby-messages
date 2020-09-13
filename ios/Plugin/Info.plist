@@ -15,15 +15,20 @@
 	<key>CFBundlePackageType</key>
 	<string>FMWK</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSPrincipalClass</key>
 	<string></string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string></string>
+	<string>Always allow Bluetooth?</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Send and receive messages with Bluetooth</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Send and receive messages with Audio</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>audio</string>
 		<string>bluetooth-central</string>
 		<string>bluetooth-peripheral</string>
 	</array>

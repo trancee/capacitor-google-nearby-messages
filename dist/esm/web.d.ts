@@ -5,6 +5,7 @@ export declare class GoogleNearbyMessagesWeb extends WebPlugin implements Google
     constructor();
     initialize(options: {
         apiKey?: string;
+        debug?: boolean;
     }): Promise<InitializeResult>;
     reset(): Promise<void>;
     publish(options: {

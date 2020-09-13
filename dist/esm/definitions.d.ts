@@ -79,6 +79,7 @@ export declare type Status = {
 export interface GoogleNearbyMessagesPlugin {
     initialize(options: {
         apiKey?: string;
+        debug?: boolean;
     }): Promise<InitializeResult>;
     reset(): Promise<void>;
     publish(options: {
