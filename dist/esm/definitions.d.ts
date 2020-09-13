@@ -27,12 +27,6 @@ export interface Distance {
     accuracy: number;
     meters: number;
 }
-export interface MessageListener {
-    onBleSignalChanged: (message: Message, bleSignal: BleSignal) => void;
-    onDistanceChanged: (message: Message, distance: Distance) => void;
-    onFound: (message: Message) => void;
-    onLost: (message: Message) => void;
-}
 export interface AudioBytes {
     audioData: string;
 }

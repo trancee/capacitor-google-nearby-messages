@@ -3,10 +3,8 @@ import { GoogleNearbyMessagesPlugin } from './definitions';
 
 import {
   Message,
-  // UNUSED // MessageListener,
   PublishOptions,
   SubscribeOptions,
-  // UNUSED // StatusCallback,
   InitializeResult,
   UUID,
   Status,
@@ -57,8 +55,6 @@ export class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMe
 
   // Subscribes for published messages from nearby devices, using the default options in DEFAULT.
   async subscribe(options: {
-    // A MessageListener implementation to get callbacks of received messages
-    // UNUSED // listener: MessageListener,
     // A SubscribeOptions object for this operation
     options?: SubscribeOptions,
   }): Promise<void> {
@@ -68,32 +64,10 @@ export class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMe
 
   // Cancels an existing subscription.
   async unsubscribe(options: {
-    // A MessageListener implementation that is currently subscribed
-    // UNUSED // listener: MessageListener,
   }): Promise<void> {
     console.log("unsubscribe", options);
     throw new Error("Method not implemented.");
   }
-
-  /*
-  // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
-  async registerStatusCallback(options: {
-    // A callback to notify when events occur
-    // UNUSED // statusCallback: StatusCallback,
-  }): Promise<void> {
-    console.log("registerStatusCallback", options);
-    throw new Error("Method not implemented.");
-  }
-
-  // Unregisters a status callback previously registered with registerStatusCallback(StatusCallback).
-  async unregisterStatusCallback(options: {
-    // A callback previously registered with registerStatusCallback(StatusCallback)
-    // UNUSED // statusCallback: StatusCallback,
-  }): Promise<void> {
-    console.log("unregisterStatusCallback", options);
-    throw new Error("Method not implemented.");
-  }
-  */
 
   async pause(): Promise<void> {
     console.log("pause");

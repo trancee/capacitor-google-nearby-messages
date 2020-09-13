@@ -55,25 +55,6 @@ export class GoogleNearbyMessagesWeb extends WebPlugin {
             throw new Error("Method not implemented.");
         });
     }
-    /*
-    // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
-    async registerStatusCallback(options: {
-      // A callback to notify when events occur
-      // UNUSED // statusCallback: StatusCallback,
-    }): Promise<void> {
-      console.log("registerStatusCallback", options);
-      throw new Error("Method not implemented.");
-    }
-  
-    // Unregisters a status callback previously registered with registerStatusCallback(StatusCallback).
-    async unregisterStatusCallback(options: {
-      // A callback previously registered with registerStatusCallback(StatusCallback)
-      // UNUSED // statusCallback: StatusCallback,
-    }): Promise<void> {
-      console.log("unregisterStatusCallback", options);
-      throw new Error("Method not implemented.");
-    }
-    */
     pause() {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("pause");

@@ -71,19 +71,6 @@ export interface Distance {
   meters: number;
 }
 
-// A listener for receiving subscribed messages.
-// These callbacks will be delivered when messages are found or lost.
-export interface MessageListener {
-  // Called when the Bluetooth Low Energy (BLE) signal associated with a message changes.
-  onBleSignalChanged: (message: Message, bleSignal: BleSignal) => void;
-  // Called when Nearby's estimate of the distance to a message changes.
-  onDistanceChanged: (message: Message, distance: Distance) => void;
-  // Called when messages are found.
-  onFound: (message: Message) => void;
-  // Called when a message is no longer detectable nearby.
-  onLost: (message: Message) => void;
-}
-
 // A message that will be sent directly over near-ultrasound audio.
 // https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/audio/AudioBytes
 export interface AudioBytes {
@@ -164,15 +151,6 @@ export interface SubscribeOptions {
   // UNUSED // callback?: SubscribeCallback;
 }
 
-/*
-// Callbacks for global status changes that affect a client of Nearby Messages.
-// https://developers.google.com/android/reference/com/google/android/gms/nearby/messages/StatusCallback
-export interface StatusCallback {
-  // Called when permission is granted or revoked for this app to use Nearby.
-  onPermissionChanged: (permissionGranted: boolean) => void;
-}
-*/
-
 export type InitializeResult = {
   // Restart the app after granting permission to re-initialize with background context (Android).
   restartApp?: boolean;
@@ -216,31 +194,13 @@ export interface GoogleNearbyMessagesPlugin {
 
   // Subscribes for published messages from nearby devices, using the default options in DEFAULT.
   subscribe(options: {
-    // A MessageListener implementation to get callbacks of received messages
-    // UNUSED // listener: MessageListener,
     // A SubscribeOptions object for this operation
     options?: SubscribeOptions,
   }): Promise<void>;
 
   // Cancels an existing subscription.
   unsubscribe(options: {
-    // A MessageListener implementation that is currently subscribed
-    // UNUSED // listener: MessageListener,
   }): Promise<void>;
-
-  /*
-  // Registers a status callback, which will be notified when significant events occur that affect Nearby for your app.
-  registerStatusCallback(options: {
-    // A callback to notify when events occur
-    // UNUSED // statusCallback: StatusCallback,
-  }): Promise<void>;
-
-  // Unregisters a status callback previously registered with registerStatusCallback(StatusCallback).
-  unregisterStatusCallback(options: {
-    // A callback previously registered with registerStatusCallback(StatusCallback)
-    // UNUSED // statusCallback: StatusCallback,
-  }): Promise<void>;
-  */
 
   pause(): Promise<void>;
   resume(): Promise<void>;
