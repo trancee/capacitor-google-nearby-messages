@@ -1,6 +1,6 @@
 {
   "name": "capacitor-google-nearby-messages",
-  "version": "1.3.9",
+  "version": "1.3.10",
   "description": "Plugin to leverage the Google Nearby Messages API for communication with nearby devices.",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
