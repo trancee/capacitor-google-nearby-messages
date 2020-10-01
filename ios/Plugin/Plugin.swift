@@ -7,7 +7,7 @@ struct Constants {
     static let PERMISSION_DENIED = "Nearby permissions not granted"
     static let PERMISSION_MICROPHONE_DENIED = "Microphone permission is denied"
     static let PERMISSION_BLUETOOTH_DENIED = "Bluetooth permission is denied"
-    static let PERMISSION_BLUETOOTH_OFF = "Bluetooth is powered off"
+    static let BLUETOOTH_OFF = "Bluetooth is powered off"
     static let PUBLISH_MESSAGE_CONTENT = "Must provide message with content"
     static let PUBLISH_MESSAGE_TYPE = "Must provide message with type"
     static let PUBLISH_MESSAGE = "Must provide message"
@@ -74,19 +74,25 @@ public class GoogleNearbyMessages: CAPPlugin {
                         // The following error handlers are called (on the main thread) when the status of the error changes.
                         params.microphonePermissionErrorHandler = { (hasError: Bool) in
                             if (hasError) {
+                                self.notifyListeners("onMicrophonePermissionError", data: nil)
+
                                 call.error(Constants.PERMISSION_MICROPHONE_DENIED)
                             }
                         }
                         // Bluetooth permission is denied.
                         params.bluetoothPermissionErrorHandler = { (hasError: Bool) in
                             if (hasError) {
+                                self.notifyListeners("onBluetoothPermissionError", data: nil)
+
                                 call.error(Constants.PERMISSION_BLUETOOTH_DENIED)
                             }
                         }
                         // Bluetooth is powered off.
                         params.bluetoothPowerErrorHandler = { (hasError: Bool) in
                             if (hasError) {
-                                call.error(Constants.PERMISSION_BLUETOOTH_OFF)
+                                self.notifyListeners("onBluetoothPowerError", data: nil)
+
+                                call.error(Constants.BLUETOOTH_OFF)
                             }
                         }
 
