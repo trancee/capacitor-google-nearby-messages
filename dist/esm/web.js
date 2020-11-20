@@ -12,7 +12,7 @@ export class GoogleNearbyMessagesWeb extends WebPlugin {
     constructor() {
         super({
             name: 'GoogleNearbyMessages',
-            platforms: ['web']
+            platforms: ['web'],
         });
     }
     initialize(options) {

@@ -14,7 +14,7 @@ export class GoogleNearbyMessagesWeb extends WebPlugin implements GoogleNearbyMe
   constructor() {
     super({
       name: 'GoogleNearbyMessages',
-      platforms: ['web']
+      platforms: ['web'],
     });
   }
 
