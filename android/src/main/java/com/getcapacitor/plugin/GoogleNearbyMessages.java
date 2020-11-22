@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
 
@@ -33,10 +34,10 @@ import com.google.android.gms.nearby.messages.SubscribeCallback;
 import com.google.android.gms.nearby.messages.SubscribeOptions;
 import com.google.android.gms.tasks.Task;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 interface Constants {
     int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -64,7 +65,7 @@ public class GoogleNearbyMessages extends Plugin {
 
     private MessagesClient mMessagesClient;
     private MessageListener mMessageListener;
-    private Map<UUID, MessageOptions> mMessages = new HashMap<>();
+    private Map<UUID, MessageOptions> mMessages = new ConcurrentHashMap<>();
 
     private StatusCallback mStatusCallback;
 
@@ -111,7 +112,17 @@ public class GoogleNearbyMessages extends Plugin {
     protected void handleOnStart() {
 //        Log.i(getLogTag(), "Starting.");
 
-        getActivity().startService(new Intent(getActivity(), KillService.class));
+        Intent intent = new Intent(getActivity(), KillService.class);
+
+        try {
+            getActivity().startService(intent);
+        } catch (IllegalStateException ex) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                getActivity().startForegroundService(intent);
+            } else {
+                getActivity().startService(intent);
+            }
+        }
     }
 
     @Override
